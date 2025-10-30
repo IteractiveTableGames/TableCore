@@ -31,3 +31,8 @@ Follow this workflow for every task:
 *   **Code Comments:** Add clear and concise comments to your code, especially for public APIs and complex logic.
 *   **Commit Messages:** Write clear and descriptive commit messages that explain the purpose of your changes.
 *   **Ask for Clarification:** If you have any questions or are unsure about any aspect of a task, please ask for clarification before proceeding.
+
+## Repository Conventions
+
+*   **Branch Per Change:** Before making modifications, create a dedicated feature branch for the task so the final work can be reviewed via pull request.
+*   **Directory Layout:** Place new framework and runtime source files under the existing `Core/` hierarchy (or other established directories). Do not introduce new top-level folders such as `TableCore/` for code that belongs in `Core/`.
