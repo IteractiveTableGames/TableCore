@@ -37,6 +37,7 @@
 .nuget/
 .packages/
 
+
 Tests/TestResults/*
 
 
