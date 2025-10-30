@@ -36,3 +36,4 @@
 *.booproj
 .nuget/
 .packages/
+Tests/TestResults/*

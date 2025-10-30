@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- Allow generation of TargetFrameworkAttribute so Test Explorer can detect .NET8 correctly -->
+    <GenerateTargetFrameworkAttribute>true</GenerateTargetFrameworkAttribute>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="4.4.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TableCore.csproj" />
+  </ItemGroup>
+
+</Project>
