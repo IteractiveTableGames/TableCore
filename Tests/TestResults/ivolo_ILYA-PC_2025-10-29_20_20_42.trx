@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="b5c30263-02ed-464e-a7f9-34d7532b8ab9" name="ivolo@ILYA-PC 2025-10-29 20:20:42" runUser="ILYA-PC\ivolo" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-10-29T20:20:42.7737043-04:00" queuing="2025-10-29T20:20:42.7737046-04:00" start="2025-10-29T20:20:42.0829765-04:00" finish="2025-10-29T20:20:42.7863128-04:00" />
+  <TestSettings name="default" id="c75a2f37-1c61-4fe7-961d-791101b6d07e">
+    <Deployment runDeploymentRoot="ivolo_ILYA-PC_2025-10-29_20_20_42" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="ac9d21e0-812d-4362-a41a-acf0e8e86729" testId="6dfda040-3fd3-f3b5-cd69-23713ce07e54" testName="SeatZone_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0171380" startTime="2025-10-29T20:20:42.6408889-04:00" endTime="2025-10-29T20:20:42.6580257-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ac9d21e0-812d-4362-a41a-acf0e8e86729">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Assert.Equals should not be used. Use Assert.AreEqual instead.</Message>
+          <StackTrace>   at NUnit.Framework.Assert.Equals(Object a, Object b)&#xD;
+   at TableCore.Tests.Core.SeatZoneTests.SeatZone_Properties_CanBeSetAndGet() in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\Core\SeatZoneTests.cs:line 24&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+1)    at NUnit.Framework.Assert.Equals(Object a, Object b)&#xD;
+   at TableCore.Tests.Core.SeatZoneTests.SeatZone_Properties_CanBeSetAndGet() in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\Core\SeatZoneTests.cs:line 24&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="25bf90c3-3647-41ce-97b3-0b070e69cc05" testId="4e57b856-6dce-4c62-7368-2b00257929b8" testName="ModuleDescriptor_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0609280" startTime="2025-10-29T20:20:42.5717353-04:00" endTime="2025-10-29T20:20:42.6326230-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="25bf90c3-3647-41ce-97b3-0b070e69cc05" />
+    <UnitTestResult executionId="34a13b5b-e7f0-4cef-808d-f88b1c7cfde6" testId="5d45fdef-a166-93b4-28a1-e6ac16ec25b8" testName="SessionState_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0004690" startTime="2025-10-29T20:20:42.6605715-04:00" endTime="2025-10-29T20:20:42.6610402-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Failed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="34a13b5b-e7f0-4cef-808d-f88b1c7cfde6">
+      <Output>
+        <ErrorInfo>
+          <Message>System.InvalidOperationException : Assert.Equals should not be used. Use Assert.AreEqual instead.</Message>
+          <StackTrace>   at NUnit.Framework.Assert.Equals(Object a, Object b)&#xD;
+   at TableCore.Tests.Core.SessionStateTests.SessionState_Properties_CanBeSetAndGet() in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\Core\SessionStateTests.cs:line 22&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+1)    at NUnit.Framework.Assert.Equals(Object a, Object b)&#xD;
+   at TableCore.Tests.Core.SessionStateTests.SessionState_Properties_CanBeSetAndGet() in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\Core\SessionStateTests.cs:line 22&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+</StackTrace>
+        </ErrorInfo>
+      </Output>
+    </UnitTestResult>
+    <UnitTestResult executionId="7926087a-513c-4562-8d40-3baa5743c2a6" testId="b778a534-c69f-df2f-d6f5-517c2c7a6106" testName="SessionState_InitializesLists" computerName="ILYA-PC" duration="00:00:00.0022700" startTime="2025-10-29T20:20:42.6582822-04:00" endTime="2025-10-29T20:20:42.6605520-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7926087a-513c-4562-8d40-3baa5743c2a6" />
+    <UnitTestResult executionId="c835a2f1-d90a-43bf-a93c-3c2c3776192c" testId="12ef565d-a0a0-e034-de60-46363e905ae9" testName="PlayerProfile_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0057800" startTime="2025-10-29T20:20:42.6349467-04:00" endTime="2025-10-29T20:20:42.6407260-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c835a2f1-d90a-43bf-a93c-3c2c3776192c" />
+    <UnitTestResult executionId="5d246174-ad5e-4d75-8a10-ee6d4643ff24" testId="53659090-6cc8-1ba0-6e98-64a8bec15119" testName="TableEdge_HasCorrectValues" computerName="ILYA-PC" duration="00:00:00.0041060" startTime="2025-10-29T20:20:42.6611499-04:00" endTime="2025-10-29T20:20:42.6652551-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5d246174-ad5e-4d75-8a10-ee6d4643ff24" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ModuleDescriptor_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="4e57b856-6dce-4c62-7368-2b00257929b8">
+      <Execution id="25bf90c3-3647-41ce-97b3-0b070e69cc05" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.ModuleDescriptorTests" name="ModuleDescriptor_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="SeatZone_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="6dfda040-3fd3-f3b5-cd69-23713ce07e54">
+      <Execution id="ac9d21e0-812d-4362-a41a-acf0e8e86729" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SeatZoneTests" name="SeatZone_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="SessionState_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="5d45fdef-a166-93b4-28a1-e6ac16ec25b8">
+      <Execution id="34a13b5b-e7f0-4cef-808d-f88b1c7cfde6" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SessionStateTests" name="SessionState_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="PlayerProfile_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="12ef565d-a0a0-e034-de60-46363e905ae9">
+      <Execution id="c835a2f1-d90a-43bf-a93c-3c2c3776192c" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.PlayerProfileTests" name="PlayerProfile_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="TableEdge_HasCorrectValues" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="53659090-6cc8-1ba0-6e98-64a8bec15119">
+      <Execution id="5d246174-ad5e-4d75-8a10-ee6d4643ff24" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.TableEdgeTests" name="TableEdge_HasCorrectValues" />
+    </UnitTest>
+    <UnitTest name="SessionState_InitializesLists" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="b778a534-c69f-df2f-d6f5-517c2c7a6106">
+      <Execution id="7926087a-513c-4562-8d40-3baa5743c2a6" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SessionStateTests" name="SessionState_InitializesLists" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="6dfda040-3fd3-f3b5-cd69-23713ce07e54" executionId="ac9d21e0-812d-4362-a41a-acf0e8e86729" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4e57b856-6dce-4c62-7368-2b00257929b8" executionId="25bf90c3-3647-41ce-97b3-0b070e69cc05" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d45fdef-a166-93b4-28a1-e6ac16ec25b8" executionId="34a13b5b-e7f0-4cef-808d-f88b1c7cfde6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b778a534-c69f-df2f-d6f5-517c2c7a6106" executionId="7926087a-513c-4562-8d40-3baa5743c2a6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12ef565d-a0a0-e034-de60-46363e905ae9" executionId="c835a2f1-d90a-43bf-a93c-3c2c3776192c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="53659090-6cc8-1ba0-6e98-64a8bec15119" executionId="5d246174-ad5e-4d75-8a10-ee6d4643ff24" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="6" executed="6" passed="4" failed="2" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running all tests in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll&#xD;
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

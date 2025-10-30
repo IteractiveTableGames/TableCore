@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="b5e93f3a-4dc3-4657-9f42-1060ead031a7" name="ivolo@ILYA-PC 2025-10-29 20:19:37" runUser="ILYA-PC\ivolo" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-10-29T20:19:37.6065716-04:00" queuing="2025-10-29T20:19:37.6065721-04:00" start="2025-10-29T20:19:35.1056969-04:00" finish="2025-10-29T20:19:37.6069158-04:00" />
+  <TestSettings name="default" id="ebdc8fcb-48c5-46e1-a693-f584fa267b29">
+    <Deployment runDeploymentRoot="ivolo_ILYA-PC_2025-10-29_20_19_37" />
+  </TestSettings>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Failed">
+    <Counters total="0" executed="0" passed="0" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running all tests in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll&#xD;
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+Fatal error. System.AccessViolationException: Attempted to read or write protected memory. This is often an indication that other memory is corrupt.&#xD;
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_new_with_utf16_chars(Godot.NativeInterop.godot_string ByRef, Char*)&#xD;
+   at Godot.NativeInterop.Marshaling.ConvertStringToNative(System.String)&#xD;
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_name_new_from_string(System.String)&#xD;
+   at Godot.StringName..ctor(System.String)&#xD;
+   at Godot.StringName.op_Implicit(System.String)&#xD;
+   at Godot.Texture2D..cctor()&#xD;
+   at Godot.Texture2D..ctor()&#xD;
+   at TableCore.Tests.Core.PlayerProfileTests.PlayerProfile_Properties_CanBeSetAndGet()&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(System.Object, Void**, System.Signature, Boolean)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(System.Object, System.Reflection.BindingFlags)&#xD;
+   at System.Reflection.MethodBase.Invoke(System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.Reflect.InvokeMethod(System.Reflection.MethodInfo, System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.MethodWrapper.Invoke(System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.InvokeTestMethod(NUnit.Framework.Internal.TestExecutionContext, Boolean)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(NUnit.Framework.Internal.TestExecutionContext)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(NUnit.Framework.Internal.TestExecutionContext)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem+&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils+&lt;&gt;c__DisplayClass1_0`1[[System.__Canon, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].&lt;DoIsolated&gt;b__0(System.Object)&#xD;
+   at System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object)&#xD;
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(System.Threading.ContextCallback, System.Object)&#xD;
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[[System.__Canon, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]](System.Func`1&lt;System.__Canon&gt;)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.RunOnCurrentThread()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.Execute()&#xD;
+   at NUnit.Framework.Internal.Execution.ParallelWorkItemDispatcher.Dispatch(NUnit.Framework.Internal.Execution.WorkItem, NUnit.Framework.Internal.Execution.ParallelExecutionStrategy)&#xD;
+   at NUnit.Framework.Internal.Execution.ParallelWorkItemDispatcher.Dispatch(NUnit.Framework.Internal.Execution.WorkItem)&#xD;
+   at NUnit.Framework.Internal.Execution.CompositeWorkItem.RunChildren()&#xD;
+   at NUnit.Framework.Internal.Execution.CompositeWorkItem.PerformWork()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.RunOnCurrentThread()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.Execute()&#xD;
+   at NUnit.Framework.Internal.Execution.TestWorker.TestWorkerThreadProc()&#xD;
+</StdOut>
+    </Output>
+    <RunInfos>
+      <RunInfo computerName="ILYA-PC" outcome="Error" timestamp="2025-10-29T20:19:37.5793947-04:00">
+        <Text>The active test run was aborted. Reason: Test host process crashed : Fatal error. System.AccessViolationException: Attempted to read or write protected memory. This is often an indication that other memory is corrupt.&#xD;
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_new_with_utf16_chars(Godot.NativeInterop.godot_string ByRef, Char*)&#xD;
+   at Godot.NativeInterop.Marshaling.ConvertStringToNative(System.String)&#xD;
+   at Godot.NativeInterop.NativeFuncs.godotsharp_string_name_new_from_string(System.String)&#xD;
+   at Godot.StringName..ctor(System.String)&#xD;
+   at Godot.StringName.op_Implicit(System.String)&#xD;
+   at Godot.Texture2D..cctor()&#xD;
+   at Godot.Texture2D..ctor()&#xD;
+   at TableCore.Tests.Core.PlayerProfileTests.PlayerProfile_Properties_CanBeSetAndGet()&#xD;
+   at System.RuntimeMethodHandle.InvokeMethod(System.Object, Void**, System.Signature, Boolean)&#xD;
+   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(System.Object, System.Reflection.BindingFlags)&#xD;
+   at System.Reflection.MethodBase.Invoke(System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.Reflect.InvokeMethod(System.Reflection.MethodInfo, System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.MethodWrapper.Invoke(System.Object, System.Object[])&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.InvokeTestMethod(NUnit.Framework.Internal.TestExecutionContext, Boolean)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.RunTestMethod(NUnit.Framework.Internal.TestExecutionContext)&#xD;
+   at NUnit.Framework.Internal.Commands.TestMethodCommand.Execute(NUnit.Framework.Internal.TestExecutionContext)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem+&lt;&gt;c__DisplayClass3_0.&lt;PerformWork&gt;b__0()&#xD;
+   at NUnit.Framework.Internal.ContextUtils+&lt;&gt;c__DisplayClass1_0`1[[System.__Canon, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]].&lt;DoIsolated&gt;b__0(System.Object)&#xD;
+   at System.Threading.ExecutionContext.RunInternal(System.Threading.ExecutionContext, System.Threading.ContextCallback, System.Object)&#xD;
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated(System.Threading.ContextCallback, System.Object)&#xD;
+   at NUnit.Framework.Internal.ContextUtils.DoIsolated[[System.__Canon, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]](System.Func`1&lt;System.__Canon&gt;)&#xD;
+   at NUnit.Framework.Internal.Execution.SimpleWorkItem.PerformWork()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.RunOnCurrentThread()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.Execute()&#xD;
+   at NUnit.Framework.Internal.Execution.ParallelWorkItemDispatcher.Dispatch(NUnit.Framework.Internal.Execution.WorkItem, NUnit.Framework.Internal.Execution.ParallelExecutionStrategy)&#xD;
+   at NUnit.Framework.Internal.Execution.ParallelWorkItemDispatcher.Dispatch(NUnit.Framework.Internal.Execution.WorkItem)&#xD;
+   at NUnit.Framework.Internal.Execution.CompositeWorkItem.RunChildren()&#xD;
+   at NUnit.Framework.Internal.Execution.CompositeWorkItem.PerformWork()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.RunOnCurrentThread()&#xD;
+   at NUnit.Framework.Internal.Execution.WorkItem.Execute()&#xD;
+   at NUnit.Framework.Internal.Execution.TestWorker.TestWorkerThreadProc()&#xD;
+</Text>
+      </RunInfo>
+    </RunInfos>
+  </ResultSummary>
+</TestRun>

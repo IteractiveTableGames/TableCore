@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="781508a6-910e-4c04-aab4-303e7e772794" name="ivolo@ILYA-PC 2025-10-29 20:21:31" runUser="ILYA-PC\ivolo" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2025-10-29T20:21:31.0472201-04:00" queuing="2025-10-29T20:21:31.0472208-04:00" start="2025-10-29T20:21:30.2913740-04:00" finish="2025-10-29T20:21:31.0520713-04:00" />
+  <TestSettings name="default" id="1000ee73-9d57-49f9-b2ad-65d951d19bb3">
+    <Deployment runDeploymentRoot="ivolo_ILYA-PC_2025-10-29_20_21_31" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="6a2e9696-40c5-4b9c-91fc-a23e2a587cfa" testId="b778a534-c69f-df2f-d6f5-517c2c7a6106" testName="SessionState_InitializesLists" computerName="ILYA-PC" duration="00:00:00.0018040" startTime="2025-10-29T20:21:30.9126228-04:00" endTime="2025-10-29T20:21:30.9144263-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6a2e9696-40c5-4b9c-91fc-a23e2a587cfa" />
+    <UnitTestResult executionId="d6c872ae-ec7c-4c60-a16e-d03c260aec7d" testId="6dfda040-3fd3-f3b5-cd69-23713ce07e54" testName="SeatZone_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0031500" startTime="2025-10-29T20:21:30.9093872-04:00" endTime="2025-10-29T20:21:30.9125369-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="d6c872ae-ec7c-4c60-a16e-d03c260aec7d" />
+    <UnitTestResult executionId="5bf20b48-cdf2-45a4-9843-55bf0fd23cfd" testId="12ef565d-a0a0-e034-de60-46363e905ae9" testName="PlayerProfile_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0103010" startTime="2025-10-29T20:21:30.8989183-04:00" endTime="2025-10-29T20:21:30.9092191-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5bf20b48-cdf2-45a4-9843-55bf0fd23cfd" />
+    <UnitTestResult executionId="a9136b85-ebf6-43cb-9a3b-7bfc3fb84050" testId="4e57b856-6dce-4c62-7368-2b00257929b8" testName="ModuleDescriptor_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0618970" startTime="2025-10-29T20:21:30.8347757-04:00" endTime="2025-10-29T20:21:30.8966345-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a9136b85-ebf6-43cb-9a3b-7bfc3fb84050" />
+    <UnitTestResult executionId="dfdb38b9-0316-4caa-b55e-73a6e79648f2" testId="53659090-6cc8-1ba0-6e98-64a8bec15119" testName="TableEdge_HasCorrectValues" computerName="ILYA-PC" duration="00:00:00.0053480" startTime="2025-10-29T20:21:30.9150605-04:00" endTime="2025-10-29T20:21:30.9204083-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="dfdb38b9-0316-4caa-b55e-73a6e79648f2" />
+    <UnitTestResult executionId="be893b90-6651-4864-84a6-a28f42a6d79a" testId="5d45fdef-a166-93b4-28a1-e6ac16ec25b8" testName="SessionState_Properties_CanBeSetAndGet" computerName="ILYA-PC" duration="00:00:00.0004790" startTime="2025-10-29T20:21:30.9144487-04:00" endTime="2025-10-29T20:21:30.9149279-04:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="be893b90-6651-4864-84a6-a28f42a6d79a" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="ModuleDescriptor_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="4e57b856-6dce-4c62-7368-2b00257929b8">
+      <Execution id="a9136b85-ebf6-43cb-9a3b-7bfc3fb84050" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.ModuleDescriptorTests" name="ModuleDescriptor_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="SeatZone_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="6dfda040-3fd3-f3b5-cd69-23713ce07e54">
+      <Execution id="d6c872ae-ec7c-4c60-a16e-d03c260aec7d" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SeatZoneTests" name="SeatZone_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="SessionState_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="5d45fdef-a166-93b4-28a1-e6ac16ec25b8">
+      <Execution id="be893b90-6651-4864-84a6-a28f42a6d79a" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SessionStateTests" name="SessionState_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="PlayerProfile_Properties_CanBeSetAndGet" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="12ef565d-a0a0-e034-de60-46363e905ae9">
+      <Execution id="5bf20b48-cdf2-45a4-9843-55bf0fd23cfd" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.PlayerProfileTests" name="PlayerProfile_Properties_CanBeSetAndGet" />
+    </UnitTest>
+    <UnitTest name="TableEdge_HasCorrectValues" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="53659090-6cc8-1ba0-6e98-64a8bec15119">
+      <Execution id="dfdb38b9-0316-4caa-b55e-73a6e79648f2" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.TableEdgeTests" name="TableEdge_HasCorrectValues" />
+    </UnitTest>
+    <UnitTest name="SessionState_InitializesLists" storage="c:\users\ivolo\documents\github\tablecore\tests\.godot\mono\temp\bin\debug\tests.dll" id="b778a534-c69f-df2f-d6f5-517c2c7a6106">
+      <Execution id="6a2e9696-40c5-4b9c-91fc-a23e2a587cfa" />
+      <TestMethod codeBase="C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll" adapterTypeName="executor://nunit3testexecutor/" className="TableCore.Tests.Core.SessionStateTests" name="SessionState_InitializesLists" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="b778a534-c69f-df2f-d6f5-517c2c7a6106" executionId="6a2e9696-40c5-4b9c-91fc-a23e2a587cfa" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="6dfda040-3fd3-f3b5-cd69-23713ce07e54" executionId="d6c872ae-ec7c-4c60-a16e-d03c260aec7d" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="12ef565d-a0a0-e034-de60-46363e905ae9" executionId="5bf20b48-cdf2-45a4-9843-55bf0fd23cfd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="4e57b856-6dce-4c62-7368-2b00257929b8" executionId="a9136b85-ebf6-43cb-9a3b-7bfc3fb84050" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="53659090-6cc8-1ba0-6e98-64a8bec15119" executionId="dfdb38b9-0316-4caa-b55e-73a6e79648f2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5d45fdef-a166-93b4-28a1-e6ac16ec25b8" executionId="be893b90-6651-4864-84a6-a28f42a6d79a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="6" executed="6" passed="6" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>NUnit Adapter 4.5.0.0: Test execution started&#xD;
+Running all tests in C:\Users\ivolo\Documents\GitHub\TableCore\Tests\.godot\mono\temp\bin\Debug\Tests.dll&#xD;
+   NUnit3TestExecutor discovered 6 of 6 NUnit test cases using Current Discovery mode, Non-Explicit run&#xD;
+NUnit Adapter 4.5.0.0: Test execution complete&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>
