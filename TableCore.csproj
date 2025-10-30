@@ -11,8 +11,4 @@
   <ItemGroup>
     <Compile Remove="Tests\**\*.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="TableCore\Core\Adapters\" />
-    <Folder Include="TableCore\Core\Dto\" />
-  </ItemGroup>
 </Project>
