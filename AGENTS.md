@@ -29,10 +29,17 @@ Follow this workflow for every task:
 
 *   **Read the Documentation:** Before starting any task, thoroughly read the `TableCore_Architecture_v0.2.md` document and the details in the issue description.
 *   **Code Comments:** Add clear and concise comments to your code, especially for public APIs and complex logic.
-*   **Commit Messages:** Write clear and descriptive commit messages that explain the purpose of your changes.
+*   **Commit Messages:** Format the first line as `<type>: <short summary> (closes #n)` where `<type>` is a task category such as `feat`, `fix`, or `chore`; include the `(closes #n)` suffix only when an issue number applies, and use subsequent lines to briefly list the repository changes.
 *   **Ask for Clarification:** If you have any questions or are unsure about any aspect of a task, please ask for clarification before proceeding.
+*   **Locate the Project Quickly:** Use GitHub's command palette (`Ctrl/Cmd + K`) or the GitHub CLI (`gh project list --owner <owner>` followed by `gh project view <owner>/<number>`) to jump directly to the TableCore project board.
 
 ## Repository Conventions
 
 *   **Branch Per Change:** Before making modifications, create a dedicated feature branch for the task so the final work can be reviewed via pull request.
 *   **Directory Layout:** Place new framework and runtime source files under the existing `Core/` hierarchy (or other established directories). Do not introduce new top-level folders such as `TableCore/` for code that belongs in `Core/`.
+
+## Completion Checklist
+
+*   **Stage Changes:** Run `git add` for all files that should be part of the update once the task is finished.
+*   **Commit Format:** Create a commit whose first line follows the `<type>: <short summary> (closes #n)` convention and whose body explains the key modifications.
+*   **Follow-Through:** Push the branch, open the pull request against `main`, and move the corresponding issue to "In Review" on the TableCore project board.
