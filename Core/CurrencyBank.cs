@@ -104,7 +104,18 @@ namespace TableCore.Core
         /// </summary>
         public void Reset()
         {
+            if (_balances.Count == 0)
+            {
+                return;
+            }
+
+            var affectedPlayers = new List<Guid>(_balances.Keys);
             _balances.Clear();
+
+            foreach (var playerId in affectedPlayers)
+            {
+                BalanceChanged?.Invoke(playerId, 0);
+            }
         }
 
         private void EnsureAccountExists(Guid playerId)

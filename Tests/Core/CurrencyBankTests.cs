@@ -112,5 +112,27 @@ namespace TableCore.Tests.Core
 
             Assert.That(bank.GetBalance(Guid.NewGuid()), Is.EqualTo(0));
         }
+
+        [Test]
+        public void Reset_NotifiesObserversWithZeroBalances()
+        {
+            var bank = new CurrencyBank();
+            var playerA = Guid.NewGuid();
+            var playerB = Guid.NewGuid();
+            var observedEvents = new List<(Guid Player, int Balance)>();
+            bank.BalanceChanged += (id, balance) => observedEvents.Add((id, balance));
+
+            bank.SetBalance(playerA, 120);
+            bank.SetBalance(playerB, 80);
+            observedEvents.Clear();
+
+            bank.Reset();
+
+            Assert.That(observedEvents, Is.EquivalentTo(new List<(Guid, int)>
+            {
+                (playerA, 0),
+                (playerB, 0)
+            }));
+        }
     }
 }

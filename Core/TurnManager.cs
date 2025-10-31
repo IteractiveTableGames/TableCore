@@ -12,6 +12,11 @@ namespace TableCore.Core
         private int _currentIndex;
 
         /// <summary>
+        /// Raised whenever the active player changes. Emits <see cref="Guid.Empty"/> when no player is active.
+        /// </summary>
+        public event Action<Guid>? TurnChanged;
+
+        /// <summary>
         /// Gets the identifier of the player whose turn is currently active.
         /// </summary>
         /// <exception cref="InvalidOperationException">Thrown when the turn order has not been configured.</exception>
@@ -77,6 +82,8 @@ namespace TableCore.Core
             _turnOrder.Clear();
             _turnOrder.AddRange(distinctOrder);
             _currentIndex = startIndex;
+
+            TurnChanged?.Invoke(_turnOrder[_currentIndex]);
         }
 
         /// <summary>
@@ -92,7 +99,9 @@ namespace TableCore.Core
             }
 
             _currentIndex = (_currentIndex + 1) % _turnOrder.Count;
-            return _turnOrder[_currentIndex];
+            var currentPlayer = _turnOrder[_currentIndex];
+            TurnChanged?.Invoke(currentPlayer);
+            return currentPlayer;
         }
 
         /// <summary>
@@ -114,6 +123,7 @@ namespace TableCore.Core
             }
 
             _currentIndex = index;
+            TurnChanged?.Invoke(_turnOrder[_currentIndex]);
             return true;
         }
 
@@ -122,8 +132,14 @@ namespace TableCore.Core
         /// </summary>
         public void Reset()
         {
+            var hadPlayers = _turnOrder.Count > 0;
             _turnOrder.Clear();
             _currentIndex = 0;
+
+            if (hadPlayers)
+            {
+                TurnChanged?.Invoke(Guid.Empty);
+            }
         }
     }
 }

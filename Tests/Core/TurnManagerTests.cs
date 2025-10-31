@@ -86,5 +86,54 @@ namespace TableCore.Tests.Core
             Assert.That(() => manager.SetOrder(Array.Empty<Guid>()), Throws.ArgumentException);
             Assert.That(() => manager.SetOrder(new[] { Guid.NewGuid() }, startIndex: 5), Throws.TypeOf<ArgumentOutOfRangeException>());
         }
+
+        [Test]
+        public void SetOrder_RaisesTurnChangedEventForActivePlayer()
+        {
+            var manager = new TurnManager();
+            var playerA = Guid.NewGuid();
+            var playerB = Guid.NewGuid();
+            var observed = new List<Guid>();
+            manager.TurnChanged += observed.Add;
+
+            manager.SetOrder(new[] { playerA, playerB }, startIndex: 1);
+
+            Assert.That(observed, Is.EqualTo(new List<Guid> { playerB }));
+        }
+
+        [Test]
+        public void AdvanceTurn_RaisesTurnChangedEvent()
+        {
+            var manager = new TurnManager();
+            var playerA = Guid.NewGuid();
+            var playerB = Guid.NewGuid();
+            var playerC = Guid.NewGuid();
+            var observed = new List<Guid>();
+            manager.TurnChanged += observed.Add;
+
+            manager.SetOrder(new[] { playerA, playerB, playerC });
+            observed.Clear();
+
+            manager.AdvanceTurn();
+            manager.AdvanceTurn();
+
+            Assert.That(observed, Is.EqualTo(new List<Guid> { playerB, playerC }));
+        }
+
+        [Test]
+        public void Reset_RaisesTurnChangedWithEmptyGuid()
+        {
+            var manager = new TurnManager();
+            var player = Guid.NewGuid();
+            var observed = new List<Guid>();
+            manager.TurnChanged += observed.Add;
+
+            manager.SetOrder(new[] { player });
+            observed.Clear();
+
+            manager.Reset();
+
+            Assert.That(observed, Is.EqualTo(new List<Guid> { Guid.Empty }));
+        }
     }
 }
