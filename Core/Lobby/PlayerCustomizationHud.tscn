@@ -1,0 +1,127 @@
+[gd_scene load_steps=4 format=3 uid="uid://c62fywuy2wavx"]
+
+[ext_resource type="Script" uid="uid://dye6hxyxn5d8y" path="res://Core/Lobby/PlayerCustomizationHud.cs" id="1"]
+[ext_resource type="PackedScene" uid="uid://8r3xajnap0hr" path="res://Core/UI/FloatingKeyboard.tscn" id="2"]
+[ext_resource type="Texture2D" uid="uid://mhjlb4g52gfs" path="res://icon.svg" id="3"]
+
+[node name="PlayerCustomizationHud" type="Control"]
+z_index = 2
+layout_mode = 3
+anchors_preset = 0
+offset_right = 492.0
+offset_bottom = 258.0
+script = ExtResource("1")
+
+[node name="Panel" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(492, 258)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="Content" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="NameLabel" type="Label" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Player"
+horizontal_alignment = 1
+
+[node name="SelectionRow" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 12
+
+[node name="ColorColumn" type="VBoxContainer" parent="Panel/Margin/Content/SelectionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="ColorLabel" type="Label" parent="Panel/Margin/Content/SelectionRow/ColorColumn"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Color"
+
+[node name="ColorRow" type="HBoxContainer" parent="Panel/Margin/Content/SelectionRow/ColorColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="ColorDropdown" type="OptionButton" parent="Panel/Margin/Content/SelectionRow/ColorColumn/ColorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ColorSwatch" type="ColorRect" parent="Panel/Margin/Content/SelectionRow/ColorColumn/ColorRow"]
+custom_minimum_size = Vector2(32, 20)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="AvatarColumn" type="VBoxContainer" parent="Panel/Margin/Content/SelectionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AvatarLabel" type="Label" parent="Panel/Margin/Content/SelectionRow/AvatarColumn"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Avatar"
+
+[node name="AvatarDropdown" type="OptionButton" parent="Panel/Margin/Content/SelectionRow/AvatarColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="KeyboardContainer" type="CenterContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="Keyboard" parent="Panel/Margin/Content/KeyboardContainer" instance=ExtResource("2")]
+custom_minimum_size = Vector2(468, 152)
+layout_mode = 2
+
+[node name="WaitOverlay" type="CenterContainer" parent="."]
+visible = false
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="WaitPanel" type="PanelContainer" parent="WaitOverlay"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+
+[node name="WaitVBox" type="VBoxContainer" parent="WaitOverlay/WaitPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="Spinner" type="TextureRect" parent="WaitOverlay/WaitPanel/WaitVBox"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+texture = ExtResource("3")
+
+[node name="WaitLabel" type="Label" parent="WaitOverlay/WaitPanel/WaitVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 16
+text = "Waiting for other players to finish…"
+horizontal_alignment = 1
