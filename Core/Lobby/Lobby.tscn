@@ -32,5 +32,121 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
+[node name="Prompts" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 424.0
+offset_bottom = 140.0
+mouse_filter = 1
+theme_type_variation = &""
+
+[node name="JoinPrompt" type="Label" parent="Prompts"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "Touch and hold near an edge to join the table"
+autowrap_mode = 2
+
+[node name="StatusMessage" type="Label" parent="Prompts"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "No module selected."
+autowrap_mode = 2
+
+[node name="PlayerPanel" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 160.0
+offset_right = 424.0
+offset_bottom = 560.0
+mouse_filter = 1
+
+[node name="PlayerMargin" type="MarginContainer" parent="PlayerPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="PlayerList" type="RichTextLabel" parent="PlayerPanel/PlayerMargin"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+bbcode_enabled = true
+scroll_active = true
+text = "No players joined yet."
+autowrap_mode = 2
+
+[node name="ModulePanel" type="PanelContainer" parent="."]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -420.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 560.0
+mouse_filter = 1
+
+[node name="Content" type="VBoxContainer" parent="ModulePanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+mouse_filter = 1
+
+[node name="Heading" type="Label" parent="ModulePanel/Content"]
+layout_mode = 2
+text = "Modules"
+theme_override_font_sizes/font_size = 20
+
+[node name="EmptyState" type="VBoxContainer" parent="ModulePanel/Content"]
+layout_mode = 2
+visible = false
+theme_override_constants/separation = 6
+
+[node name="EmptyLabel" type="Label" parent="ModulePanel/Content/EmptyState"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "No modules found. Add module folders under Modules/ to populate this list."
+autowrap_mode = 2
+
+[node name="ModuleListContainer" type="VBoxContainer" parent="ModulePanel/Content"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="ModuleListLabel" type="Label" parent="ModulePanel/Content/ModuleListContainer"]
+layout_mode = 2
+text = "Available Modules"
+
+[node name="ModuleList" type="ItemList" parent="ModulePanel/Content/ModuleListContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 0
+
+[node name="ModuleDetails" type="VBoxContainer" parent="ModulePanel/Content"]
+layout_mode = 2
+size_flags_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="Icon" type="TextureRect" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+visible = false
+custom_minimum_size = Vector2(96, 96)
+size_flags_horizontal = 4
+stretch_mode = 2
+
+[node name="Name" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+text = "No module selected"
+theme_override_font_sizes/font_size = 18
+
+[node name="Players" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+text = "Players: -"
+
+[node name="Summary" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "Drop a module into the Modules/ directory to see its information here."
+autowrap_mode = 2
+
 [node name="InputRouter" type="Node" parent="."]
 script = ExtResource("2")

@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using TableCore.Core;
-using Godot;
 
 namespace TableCore.Tests.Core
 {
@@ -8,20 +7,36 @@ namespace TableCore.Tests.Core
     public class ModuleDescriptorTests
     {
         [Test]
-        public void ModuleDescriptor_Properties_CanBeSetAndGet()
+        public void ModuleDescriptor_AllowsPropertyAssignment()
         {
-            var moduleDescriptor = new ModuleDescriptor();
-            var name = "Test Module";
-            var description = "This is a test module.";
-            Texture2D icon = null; // avoid Godot native object initialization in unit tests
+            var descriptor = new ModuleDescriptor
+            {
+                ModuleId = "sample.module",
+                DisplayName = "Sample Module",
+                Summary = "Example summary",
+                MinPlayers = 2,
+                MaxPlayers = 6,
+                ModulePath = "C:/Modules/Sample",
+                IconPath = "res://Modules/Sample/icon.png",
+                EntryScenePath = "res://Modules/Sample/Main.tscn"
+            };
 
-            moduleDescriptor.Name = name;
-            moduleDescriptor.Description = description;
-            moduleDescriptor.Icon = icon;
+            descriptor.Capabilities["supportsHotSeat"] = true;
 
-            Assert.That(moduleDescriptor.Name, Is.EqualTo(name));
-            Assert.That(moduleDescriptor.Description, Is.EqualTo(description));
-            Assert.That(moduleDescriptor.Icon, Is.EqualTo(icon));
+            Assert.Multiple(() =>
+            {
+                Assert.That(descriptor.ModuleId, Is.EqualTo("sample.module"));
+                Assert.That(descriptor.DisplayName, Is.EqualTo("Sample Module"));
+                Assert.That(descriptor.Summary, Is.EqualTo("Example summary"));
+                Assert.That(descriptor.MinPlayers, Is.EqualTo(2));
+                Assert.That(descriptor.MaxPlayers, Is.EqualTo(6));
+                Assert.That(descriptor.ModulePath, Contains.Substring("Sample"));
+                Assert.That(descriptor.IconPath, Contains.Substring("icon.png"));
+                Assert.That(descriptor.EntryScenePath, Contains.Substring("Main.tscn"));
+                Assert.That(descriptor.Capabilities.ContainsKey("supportsHotSeat"), Is.True);
+                Assert.That(descriptor.SupportsPlayerCount(4), Is.True);
+                Assert.That(descriptor.SupportsPlayerCount(7), Is.False);
+            });
         }
     }
 }
