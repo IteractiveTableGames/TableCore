@@ -77,9 +77,9 @@ namespace TableCore.Lobby
             var rotationDegrees = edge switch
             {
                 TableEdge.Bottom => 0f,
-                TableEdge.Right => 90f,
+                TableEdge.Right => 270f,
                 TableEdge.Top => 180f,
-                TableEdge.Left => 270f,
+                TableEdge.Left => 90f,
                 _ => 0f
             };
 
