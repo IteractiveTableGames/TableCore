@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Godot;
 using TableCore.Core;
+using TableCore.Core.Modules;
 using TableCore.Input;
 
 namespace TableCore.Lobby
@@ -36,6 +38,9 @@ namespace TableCore.Lobby
         [Export]
         public string JoinPromptText { get; set; } = "Touch and hold near an edge to join the table";
 
+        [Export(PropertyHint.Dir)]
+        public string ModulesDirectory { get; set; } = "res://Modules";
+
         private readonly Dictionary<long, TouchTracker> _activeTouches = new();
         private readonly SessionState _sessionState = new();
         private readonly Dictionary<Guid, SeatIndicatorElements> _seatIndicators = new();
@@ -58,6 +63,14 @@ namespace TableCore.Lobby
         private Control? _seatOverlayRoot;
         private Control? _playerHudRoot;
         private PackedScene? _customizationHudScene;
+        private ModuleSelectionModel _moduleSelectionModel = default!;
+        private ItemList? _moduleList;
+        private TextureRect? _moduleIcon;
+        private Label? _moduleNameLabel;
+        private Label? _modulePlayersLabel;
+        private Label? _moduleSummaryLabel;
+        private Control? _moduleEmptyState;
+        private readonly ModuleLoader _moduleLoader = new();
 
         public SessionState Session => _sessionState;
 
@@ -73,14 +86,27 @@ namespace TableCore.Lobby
             _seatOverlayRoot = GetNodeOrNull<Control>("SeatOverlays");
             _playerHudRoot = GetNodeOrNull<Control>("PlayerHUDRoot");
             _customizationHudScene ??= ResourceLoader.Load<PackedScene>("res://Core/Lobby/PlayerCustomizationHud.tscn");
+            _moduleList = GetNodeOrNull<ItemList>("ModulePanel/Content/ModuleListContainer/ModuleList");
+            _moduleIcon = GetNodeOrNull<TextureRect>("ModulePanel/Content/ModuleDetails/Icon");
+            _moduleNameLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Name");
+            _modulePlayersLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Players");
+            _moduleSummaryLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Summary");
+            _moduleEmptyState = GetNodeOrNull<Control>("ModulePanel/Content/EmptyState");
+            _moduleSelectionModel = new ModuleSelectionModel(_sessionState);
 
             if (_promptLabel != null)
             {
                 _promptLabel.Text = JoinPromptText;
             }
 
+            if (_moduleList != null)
+            {
+                _moduleList.ItemSelected += OnModuleListItemSelected;
+            }
+
             RefreshPlayerDisplay();
             UpdateInputRouterSession();
+            LoadModuleCatalog();
         }
 
         public override void _Input(InputEvent @event)
@@ -346,6 +372,206 @@ namespace TableCore.Lobby
             if (_inputRouter != null)
             {
                 _inputRouter.Session = _sessionState;
+            }
+
+            RefreshModuleAvailability();
+        }
+
+        private void LoadModuleCatalog()
+        {
+            var modulesRoot = ResolveModulesRoot();
+            _moduleSelectionModel.SetModules(_moduleLoader.LoadModules(modulesRoot));
+            PopulateModuleList();
+        }
+
+        private string ResolveModulesRoot()
+        {
+            if (string.IsNullOrWhiteSpace(ModulesDirectory))
+            {
+                return string.Empty;
+            }
+
+            if (ModulesDirectory.StartsWith("res://", StringComparison.OrdinalIgnoreCase) ||
+                ModulesDirectory.StartsWith("user://", StringComparison.OrdinalIgnoreCase))
+            {
+                try
+                {
+                    return ProjectSettings.GlobalizePath(ModulesDirectory);
+                }
+                catch
+                {
+                    return ModulesDirectory;
+                }
+            }
+
+            return ModulesDirectory;
+        }
+
+        private void PopulateModuleList()
+        {
+            if (_moduleList == null)
+            {
+                return;
+            }
+
+            _moduleList.Clear();
+            var modules = _moduleSelectionModel.Modules;
+
+            if (_moduleEmptyState != null)
+            {
+                _moduleEmptyState.Visible = modules.Count == 0;
+            }
+
+            if (modules.Count == 0)
+            {
+                UpdateModuleDetails(null);
+                return;
+            }
+
+            for (var index = 0; index < modules.Count; index++)
+            {
+                var descriptor = modules[index];
+                var playerLabel = descriptor.MinPlayers == descriptor.MaxPlayers
+                    ? $"{descriptor.MinPlayers} players"
+                    : $"{descriptor.MinPlayers}–{descriptor.MaxPlayers} players";
+                _moduleList.AddItem($"{descriptor.DisplayName} ({playerLabel})");
+            }
+
+            var selected = _moduleSelectionModel.SelectedModule;
+            var selectedIndex = -1;
+
+            if (selected != null)
+            {
+                for (var index = 0; index < modules.Count; index++)
+                {
+                    if (string.Equals(modules[index].ModuleId, selected.ModuleId, StringComparison.OrdinalIgnoreCase))
+                    {
+                        selectedIndex = index;
+                        break;
+                    }
+                }
+            }
+
+            if (selectedIndex < 0 && modules.Count > 0)
+            {
+                selectedIndex = 0;
+                _moduleSelectionModel.SelectModuleByIndex(selectedIndex);
+            }
+
+            if (selectedIndex >= 0)
+            {
+                _moduleList.Select(selectedIndex);
+                UpdateModuleDetails(modules[selectedIndex]);
+            }
+            else
+            {
+                UpdateModuleDetails(null);
+            }
+
+            RefreshModuleAvailability();
+        }
+
+        private void UpdateModuleDetails(ModuleDescriptor? descriptor)
+        {
+            _sessionState.SelectedModule = descriptor;
+
+            if (_moduleNameLabel != null)
+            {
+                _moduleNameLabel.Text = descriptor?.DisplayName ?? "No module selected";
+            }
+
+            if (_modulePlayersLabel != null)
+            {
+                _modulePlayersLabel.Text = descriptor is null
+                    ? "Players: –"
+                    : $"Players: {descriptor.MinPlayers} – {descriptor.MaxPlayers}";
+            }
+
+            if (_moduleSummaryLabel != null)
+            {
+                _moduleSummaryLabel.Text = descriptor?.Summary ??
+                    "Drop modules into the Modules/ directory to enable game selection.";
+            }
+
+            if (_moduleIcon != null)
+            {
+                _moduleIcon.Texture = LoadModuleIcon(descriptor);
+                _moduleIcon.Visible = _moduleIcon.Texture != null;
+            }
+
+            if (descriptor != null)
+            {
+                UpdateStatusMessage($"Selected module: {descriptor.DisplayName}");
+            }
+            else
+            {
+                UpdateStatusMessage("No module selected.");
+            }
+        }
+
+        private Texture2D? LoadModuleIcon(ModuleDescriptor? descriptor)
+        {
+            if (descriptor == null || string.IsNullOrWhiteSpace(descriptor.IconPath))
+            {
+                return null;
+            }
+
+            var absolutePath = Path.Combine(descriptor.ModulePath, descriptor.IconPath.Replace('/', Path.DirectorySeparatorChar));
+            var resourcePath = NormalizeResourcePath(absolutePath);
+
+            try
+            {
+                return ResourceLoader.Exists(resourcePath)
+                    ? ResourceLoader.Load<Texture2D>(resourcePath)
+                    : null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private static string NormalizeResourcePath(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+            {
+                return path;
+            }
+
+            if (path.StartsWith("res://", StringComparison.OrdinalIgnoreCase) ||
+                path.StartsWith("user://", StringComparison.OrdinalIgnoreCase))
+            {
+                return path;
+            }
+
+            try
+            {
+                return ProjectSettings.LocalizePath(path);
+            }
+            catch
+            {
+                return path;
+            }
+        }
+
+        private void OnModuleListItemSelected(long index)
+        {
+            if (_moduleSelectionModel.SelectModuleByIndex((int)index))
+            {
+                UpdateModuleDetails(_moduleSelectionModel.SelectedModule);
+            }
+        }
+
+        private void RefreshModuleAvailability()
+        {
+            if (_moduleList == null)
+            {
+                return;
+            }
+
+            if (_moduleEmptyState != null)
+            {
+                _moduleEmptyState.Visible = _moduleSelectionModel.Modules.Count == 0;
             }
         }
 
