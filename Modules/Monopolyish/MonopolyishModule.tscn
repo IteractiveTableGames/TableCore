@@ -1,0 +1,146 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://Modules/Monopolyish/MonopolyishModule.cs" id="1"]
+[ext_resource type="Script" path="res://Modules/Monopolyish/MonopolyishBoard.cs" id="2"]
+
+[node name="MonopolyishModule" type="Node2D"]
+script = ExtResource("1")
+BoardPath = NodePath("BoardRoot")
+TokensRootPath = NodePath("BoardRoot/Tokens")
+
+[node name="BoardRoot" type="Node2D" parent="."]
+script = ExtResource("2")
+tile_marker_paths = PackedStringArray("Markers/Tile0", "Markers/Tile1", "Markers/Tile2", "Markers/Tile3", "Markers/Tile4", "Markers/Tile5", "Markers/Tile6", "Markers/Tile7", "Markers/Tile8", "Markers/Tile9", "Markers/Tile10", "Markers/Tile11")
+
+[node name="Tiles" type="Node2D" parent="BoardRoot"]
+
+[node name="OuterSquare" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(0, 0)
+polygon = PackedVector2Array(-420, -420, 420, -420, 420, 420, -420, 420)
+color = Color(0.117647, 0.145098, 0.2, 1)
+
+[node name="InnerSquare" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(0, 0)
+polygon = PackedVector2Array(-280, -280, 280, -280, 280, 280, -280, 280)
+color = Color(0.176471, 0.207843, 0.282353, 1)
+
+[node name="Tile0" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-320, 320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.866667, 0.384314, 0.341176, 1)
+
+[node name="Tile1" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-160, 320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.972549, 0.709804, 0.196078, 1)
+
+[node name="Tile2" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(160, 320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.470588, 0.760784, 0.447059, 1)
+
+[node name="Tile3" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(320, 320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.333333, 0.662745, 0.933333, 1)
+
+[node name="Tile4" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(320, 160)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.866667, 0.384314, 0.341176, 1)
+
+[node name="Tile5" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(320, -160)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.972549, 0.709804, 0.196078, 1)
+
+[node name="Tile6" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(320, -320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.470588, 0.760784, 0.447059, 1)
+
+[node name="Tile7" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(160, -320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.333333, 0.662745, 0.933333, 1)
+
+[node name="Tile8" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-160, -320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.866667, 0.384314, 0.341176, 1)
+
+[node name="Tile9" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-320, -320)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.972549, 0.709804, 0.196078, 1)
+
+[node name="Tile10" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-320, -160)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.470588, 0.760784, 0.447059, 1)
+
+[node name="Tile11" type="Polygon2D" parent="BoardRoot/Tiles"]
+position = Vector2(-320, 160)
+polygon = PackedVector2Array(-80, -80, 80, -80, 80, 80, -80, 80)
+color = Color(0.333333, 0.662745, 0.933333, 1)
+
+[node name="Markers" type="Node2D" parent="BoardRoot"]
+
+[node name="Tile0" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-320, 320)
+
+[node name="Tile1" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-160, 320)
+
+[node name="Tile2" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(160, 320)
+
+[node name="Tile3" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(320, 320)
+
+[node name="Tile4" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(320, 160)
+
+[node name="Tile5" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(320, -160)
+
+[node name="Tile6" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(320, -320)
+
+[node name="Tile7" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(160, -320)
+
+[node name="Tile8" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-160, -320)
+
+[node name="Tile9" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-320, -320)
+
+[node name="Tile10" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-320, -160)
+
+[node name="Tile11" type="Marker2D" parent="BoardRoot/Markers"]
+position = Vector2(-320, 160)
+
+[node name="Tokens" type="Node2D" parent="BoardRoot"]
+
+[node name="Overlay" type="CanvasLayer" parent="."]
+
+[node name="OverlayRoot" type="Control" parent="Overlay"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Overlay/OverlayRoot"]
+layout_mode = 0
+anchors_preset = 1
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -240.0
+offset_right = 240.0
+offset_top = 24.0
+offset_bottom = 64.0
+horizontal_alignment = 1
+text = "Monopoly-ish Sample Module"
