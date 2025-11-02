@@ -34,6 +34,7 @@
 *.dotSettings
 *.pidb
 *.booproj
+*.uid
 .nuget/
 .packages/
 */TestResults/*
