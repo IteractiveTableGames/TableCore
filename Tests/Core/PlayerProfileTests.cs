@@ -33,5 +33,44 @@ namespace TableCore.Tests.Core
             Assert.That(playerProfile.Seat, Is.EqualTo(seat));
             Assert.That(playerProfile.IsGameMaster, Is.EqualTo(isGameMaster));
         }
+
+        [Test]
+        public void Clone_ProducesNewInstanceWithSameValues()
+        {
+            var profile = new PlayerProfile
+            {
+                PlayerId = Guid.NewGuid(),
+                DisplayName = "Explorer",
+                DisplayColor = new Color(0.25f, 0.75f, 0.9f),
+                Seat = new SeatZone
+                {
+                    Edge = TableEdge.Left,
+                    RotationDegrees = 270f,
+                    ScreenRegion = new Rect2(5, 5, 200, 180),
+                    AnchorPoint = new Vector2(15, 40)
+                },
+                IsGameMaster = true
+            };
+
+            var clone = profile.Clone();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(clone, Is.Not.SameAs(profile));
+                Assert.That(clone.PlayerId, Is.EqualTo(profile.PlayerId));
+                Assert.That(clone.DisplayName, Is.EqualTo(profile.DisplayName));
+                Assert.That(clone.DisplayColor, Is.EqualTo(profile.DisplayColor));
+                Assert.That(clone.Seat, Is.Not.SameAs(profile.Seat));
+                Assert.That(clone.Seat?.RotationDegrees, Is.EqualTo(profile.Seat?.RotationDegrees));
+                Assert.That(clone.IsGameMaster, Is.True);
+            });
+
+            if (clone.Seat != null)
+            {
+                clone.Seat.RotationDegrees = 45f;
+            }
+
+            Assert.That(profile.Seat?.RotationDegrees, Is.EqualTo(270f));
+        }
     }
 }

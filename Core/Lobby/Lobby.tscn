@@ -148,5 +148,12 @@ custom_minimum_size = Vector2(360, 0)
 text = "Drop a module into the Modules/ directory to see its information here."
 autowrap_mode = 2
 
+[node name="StartButton" type="Button" parent="ModulePanel/Content"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 48)
+size_flags_horizontal = 4
+text = "Start Game"
+disabled = true
+
 [node name="InputRouter" type="Node" parent="."]
 script = ExtResource("2")
