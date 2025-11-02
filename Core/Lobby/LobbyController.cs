@@ -16,6 +16,7 @@ namespace TableCore.Lobby
     public partial class LobbyController : Control
     {
         private const long MouseTouchKey = -1;
+        private const string RuntimeScenePath = "res://Core/Runtime/ModuleRuntimeRoot.tscn";
 
         [Export(PropertyHint.Range, "0.2,3.0,0.1")]
         public float HoldDurationSeconds { get; set; } = 1.0f;
@@ -70,6 +71,7 @@ namespace TableCore.Lobby
         private Label? _modulePlayersLabel;
         private Label? _moduleSummaryLabel;
         private Control? _moduleEmptyState;
+        private Button? _startGameButton;
         private readonly ModuleLoader _moduleLoader = new();
 
         public SessionState Session => _sessionState;
@@ -92,6 +94,7 @@ namespace TableCore.Lobby
             _modulePlayersLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Players");
             _moduleSummaryLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Summary");
             _moduleEmptyState = GetNodeOrNull<Control>("ModulePanel/Content/EmptyState");
+            _startGameButton = GetNodeOrNull<Button>("ModulePanel/Content/StartButton");
             _moduleSelectionModel = new ModuleSelectionModel(_sessionState);
 
             if (_promptLabel != null)
@@ -104,9 +107,15 @@ namespace TableCore.Lobby
                 _moduleList.ItemSelected += OnModuleListItemSelected;
             }
 
+            if (_startGameButton != null)
+            {
+                _startGameButton.Pressed += OnStartGamePressed;
+            }
+
             RefreshPlayerDisplay();
             UpdateInputRouterSession();
             LoadModuleCatalog();
+            RefreshStartButtonState();
         }
 
         public override void _Input(InputEvent @event)
@@ -288,6 +297,7 @@ namespace TableCore.Lobby
             RefreshPlayerDisplay();
             UpdateInputRouterSession();
             UpdateStatusMessage($"Seat claimed near the {edge.ToString().ToLower()} edge.");
+            RefreshStartButtonState();
 
             return true;
         }
@@ -335,6 +345,7 @@ namespace TableCore.Lobby
             if (_sessionState.PlayerProfiles.Count == 0)
             {
                 _playerListLabel.Text = "No players joined yet.";
+                RefreshStartButtonState();
                 return;
             }
 
@@ -357,6 +368,7 @@ namespace TableCore.Lobby
             }
 
             _playerListLabel.Text = builder.ToString();
+            RefreshStartButtonState();
         }
 
         private void UpdateStatusMessage(string message)
@@ -382,6 +394,65 @@ namespace TableCore.Lobby
             var modulesRoot = ResolveModulesRoot();
             _moduleSelectionModel.SetModules(_moduleLoader.LoadModules(modulesRoot));
             PopulateModuleList();
+        }
+
+        private void RefreshStartButtonState()
+        {
+            if (_startGameButton == null)
+            {
+                return;
+            }
+
+            var canStart = CanStartGame(out var tooltip);
+            _startGameButton.Disabled = !canStart;
+            _startGameButton.TooltipText = tooltip ?? string.Empty;
+        }
+
+        private bool CanStartGame(out string message)
+        {
+            var module = _sessionState.SelectedModule;
+            var playerCount = _sessionState.PlayerProfiles.Count;
+
+            if (module is null)
+            {
+                message = "Select a module to enable the runtime.";
+                return false;
+            }
+
+            if (playerCount == 0)
+            {
+                message = "At least one player must join before starting.";
+                return false;
+            }
+
+            if (!module.SupportsPlayerCount(playerCount))
+            {
+                message = module.MinPlayers == module.MaxPlayers
+                    ? $"Requires exactly {module.MinPlayers} players."
+                    : $"Requires {module.MinPlayers}–{module.MaxPlayers} players.";
+                return false;
+            }
+
+            message = "Launch the selected module with the current table configuration.";
+            return true;
+        }
+
+        private void OnStartGamePressed()
+        {
+            if (!CanStartGame(out var reason))
+            {
+                UpdateStatusMessage(reason);
+                RefreshStartButtonState();
+                return;
+            }
+
+            SessionTransfer.Store(_sessionState);
+            var changeResult = GetTree().ChangeSceneToFile(RuntimeScenePath);
+
+            if (changeResult != Error.Ok)
+            {
+                UpdateStatusMessage("Unable to load the runtime scene. Check the project configuration.");
+            }
         }
 
         private string ResolveModulesRoot()
@@ -507,6 +578,8 @@ namespace TableCore.Lobby
             {
                 UpdateStatusMessage("No module selected.");
             }
+
+            RefreshStartButtonState();
         }
 
         private Texture2D? LoadModuleIcon(ModuleDescriptor? descriptor)
@@ -573,6 +646,8 @@ namespace TableCore.Lobby
             {
                 _moduleEmptyState.Visible = _moduleSelectionModel.Modules.Count == 0;
             }
+
+            RefreshStartButtonState();
         }
 
         private List<SeatAssignmentItem> BuildSeatAssignmentItems(TableEdge edge, SeatZone newSeatZone)
@@ -762,6 +837,7 @@ namespace TableCore.Lobby
             UpdateSeatIndicator(profile);
             RefreshPlayerDisplay();
             ResolveHudOverlaps();
+            RefreshStartButtonState();
         }
 
         private Color GetIndicatorColor(PlayerProfile profile)

@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://df8fpg9ooyxxa"]
+
+[ext_resource type="Script" path="res://Core/Runtime/ModuleRuntimeRoot.cs" id="1"]
+
+[node name="ModuleRuntimeRoot" type="Node"]
+script = ExtResource("1")
+
+[node name="BoardLayer" type="Node2D" parent="."]
+
+[node name="HUDLayer" type="CanvasLayer" parent="."]

@@ -20,5 +20,30 @@ namespace TableCore.Core
         {
             return playerCount >= MinPlayers && playerCount <= Math.Max(MinPlayers, MaxPlayers);
         }
+
+        /// <summary>
+        /// Creates a deep copy of this descriptor so per-session mutations do not leak across scenes.
+        /// </summary>
+        public ModuleDescriptor Clone()
+        {
+            var copy = new ModuleDescriptor
+            {
+                ModuleId = ModuleId,
+                DisplayName = DisplayName,
+                Summary = Summary,
+                MinPlayers = MinPlayers,
+                MaxPlayers = MaxPlayers,
+                ModulePath = ModulePath,
+                IconPath = IconPath,
+                EntryScenePath = EntryScenePath
+            };
+
+            foreach (var (key, value) in Capabilities)
+            {
+                copy.Capabilities[key] = value;
+            }
+
+            return copy;
+        }
     }
 }
