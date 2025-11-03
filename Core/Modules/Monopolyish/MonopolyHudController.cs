@@ -16,7 +16,8 @@ namespace TableCore.Core.Modules.Monopolyish
         private readonly CardService _cardService;
         private readonly TurnManager _turnManager;
         private readonly DiceService _diceService;
-        private readonly Dictionary<Guid, PlayerHudContext> _contexts = new();
+        private readonly IMonopolyHudViewFactory _viewFactory;
+        private readonly Dictionary<Guid, IMonopolyHudViewContext> _contexts = new();
 
         private bool _isInitialized;
         private Guid _activePlayerId = Guid.Empty;
@@ -40,7 +41,8 @@ namespace TableCore.Core.Modules.Monopolyish
             CurrencyBank currencyBank,
             CardService cardService,
             TurnManager turnManager,
-            DiceService diceService)
+            DiceService diceService,
+            IMonopolyHudViewFactory? viewFactory = null)
         {
             _sessionState = sessionState ?? throw new ArgumentNullException(nameof(sessionState));
             _hudService = hudService ?? throw new ArgumentNullException(nameof(hudService));
@@ -48,6 +50,7 @@ namespace TableCore.Core.Modules.Monopolyish
             _cardService = cardService ?? throw new ArgumentNullException(nameof(cardService));
             _turnManager = turnManager ?? throw new ArgumentNullException(nameof(turnManager));
             _diceService = diceService ?? throw new ArgumentNullException(nameof(diceService));
+            _viewFactory = viewFactory ?? new GodotMonopolyHudViewFactory();
         }
 
         /// <summary>
@@ -68,7 +71,7 @@ namespace TableCore.Core.Modules.Monopolyish
                 }
 
                 var playerHud = _hudService.CreatePlayerHUD(player);
-                var context = BuildPlayerHud(player, playerHud);
+                var context = _viewFactory.Create(player, playerHud, () => HandleRollDicePressed(player.PlayerId), () => HandleEndTurnPressed(player.PlayerId));
                 _contexts[player.PlayerId] = context;
 
                 var startingFunds = _currencyBank.GetBalance(player.PlayerId);
@@ -105,54 +108,6 @@ namespace TableCore.Core.Modules.Monopolyish
             }
 
             _contexts.Clear();
-        }
-
-        private PlayerHudContext BuildPlayerHud(PlayerProfile player, IPlayerHUD hud)
-        {
-            var content = new VBoxContainer
-            {
-                Name = "MonopolyHudContent",
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
-                ThemeTypeVariation = "MonopolyHudContent"
-            };
-            content.AddThemeConstantOverride("separation", 12);
-
-            var actionRow = new HBoxContainer
-            {
-                Name = "ActionRow",
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                SizeFlagsVertical = Control.SizeFlags.ShrinkCenter
-            };
-            actionRow.AddThemeConstantOverride("separation", 12);
-
-            var rollDiceButton = CreateActionButton("Roll Dice");
-            Action rollHandler = () => HandleRollDicePressed(player.PlayerId);
-            rollDiceButton.Pressed += rollHandler;
-
-            var endTurnButton = CreateActionButton("End Turn");
-            Action endTurnHandler = () => HandleEndTurnPressed(player.PlayerId);
-            endTurnButton.Pressed += endTurnHandler;
-
-            actionRow.AddChild(rollDiceButton);
-            actionRow.AddChild(endTurnButton);
-            content.AddChild(actionRow);
-
-            hud.AddControl(content);
-
-            return new PlayerHudContext(player, hud, rollDiceButton, rollHandler, endTurnButton, endTurnHandler);
-        }
-
-        private static Button CreateActionButton(string text)
-        {
-            return new Button
-            {
-                Text = text,
-                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-                SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
-                MouseFilter = Control.MouseFilterEnum.Stop,
-                Name = $"{text.Replace(" ", string.Empty)}Button"
-            };
         }
 
         private void HandleBalanceChanged(Guid playerId, int newAmount)
@@ -220,7 +175,7 @@ namespace TableCore.Core.Modules.Monopolyish
             foreach (var (playerId, context) in _contexts)
             {
                 var isActive = playerId == activePlayerId && activePlayerId != Guid.Empty;
-                context.SetButtonsEnabled(isActive);
+                context.SetInteractionEnabled(isActive);
 
                 if (isActive)
                 {
@@ -279,45 +234,112 @@ namespace TableCore.Core.Modules.Monopolyish
             }
         }
 
-        private sealed class PlayerHudContext : IDisposable
+        private sealed class GodotMonopolyHudViewFactory : IMonopolyHudViewFactory
         {
-            private readonly Action _rollDiceHandler;
-            private readonly Action _endTurnHandler;
+            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler)
+            {
+                var content = new VBoxContainer
+                {
+                    Name = "MonopolyHudContent",
+                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                    SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+                    ThemeTypeVariation = "MonopolyHudContent"
+                };
+                content.AddThemeConstantOverride("separation", 12);
 
-            public PlayerHudContext(
+                var actionRow = new HBoxContainer
+                {
+                    Name = "ActionRow",
+                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                    SizeFlagsVertical = Control.SizeFlags.ShrinkCenter
+                };
+                actionRow.AddThemeConstantOverride("separation", 12);
+
+                var rollButton = CreateActionButton("Roll Dice");
+                rollButton.Pressed += rollHandler;
+
+                var endButton = CreateActionButton("End Turn");
+                endButton.Pressed += endHandler;
+
+                actionRow.AddChild(rollButton);
+                actionRow.AddChild(endButton);
+                content.AddChild(actionRow);
+
+                hud.AddControl(content);
+
+                return new GodotMonopolyHudViewContext(player, hud, rollButton, rollHandler, endButton, endHandler);
+            }
+
+            private static Button CreateActionButton(string text)
+            {
+                return new Button
+                {
+                    Text = text,
+                    SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                    SizeFlagsVertical = Control.SizeFlags.ShrinkCenter,
+                    MouseFilter = Control.MouseFilterEnum.Stop,
+                    Name = $"{text.Replace(" ", string.Empty)}Button"
+                };
+            }
+        }
+
+        private sealed class GodotMonopolyHudViewContext : IMonopolyHudViewContext
+        {
+            private readonly Action _rollHandler;
+            private readonly Action _endHandler;
+
+            public GodotMonopolyHudViewContext(
                 PlayerProfile player,
                 IPlayerHUD hud,
-                Button rollDiceButton,
-                Action rollDiceHandler,
-                Button endTurnButton,
-                Action endTurnHandler)
+                Button rollButton,
+                Action rollHandler,
+                Button endButton,
+                Action endHandler)
             {
                 PlayerId = player.PlayerId;
                 DisplayName = string.IsNullOrWhiteSpace(player.DisplayName) ? "Player" : player.DisplayName;
                 Hud = hud;
-                RollDiceButton = rollDiceButton;
-                EndTurnButton = endTurnButton;
-                _rollDiceHandler = rollDiceHandler;
-                _endTurnHandler = endTurnHandler;
+                RollButton = rollButton;
+                EndButton = endButton;
+                _rollHandler = rollHandler;
+                _endHandler = endHandler;
             }
 
             public Guid PlayerId { get; }
             public string DisplayName { get; }
             public IPlayerHUD Hud { get; }
-            public Button RollDiceButton { get; }
-            public Button EndTurnButton { get; }
+            public Button RollButton { get; }
+            public Button EndButton { get; }
 
-            public void SetButtonsEnabled(bool enabled)
+            public void SetInteractionEnabled(bool enabled)
             {
-                RollDiceButton.Disabled = !enabled;
-                EndTurnButton.Disabled = !enabled;
+                RollButton.Disabled = !enabled;
+                EndButton.Disabled = !enabled;
             }
+
+            public void InvokeRoll() => RollButton.EmitSignal(BaseButton.SignalName.Pressed);
+
+            public void InvokeEndTurn() => EndButton.EmitSignal(BaseButton.SignalName.Pressed);
 
             public void Dispose()
             {
-                RollDiceButton.Pressed -= _rollDiceHandler;
-                EndTurnButton.Pressed -= _endTurnHandler;
+                RollButton.Pressed -= _rollHandler;
+                EndButton.Pressed -= _endHandler;
             }
         }
+    }
+
+    public interface IMonopolyHudViewFactory
+    {
+        IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler);
+    }
+
+    public interface IMonopolyHudViewContext : IDisposable
+    {
+        Guid PlayerId { get; }
+        string DisplayName { get; }
+        void SetInteractionEnabled(bool enabled);
+        void InvokeRoll();
+        void InvokeEndTurn();
     }
 }

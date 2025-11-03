@@ -1,0 +1,8 @@
+{
+  "moduleId": "com.tablecore.monopolyish",
+  "displayName": "Monopoly-ish",
+  "summary": "Sample property-trading experience showcasing TableCore services.",
+  "minPlayers": 2,
+  "maxPlayers": 6,
+  "entryScene": "MonopolyishModule.tscn"
+}

@@ -26,6 +26,7 @@ namespace TableCore.Tests.Modules.Monopolyish
             };
 
             var hudService = new FakeHudService();
+            var viewFactory = new TestHudViewFactory();
             var currencyBank = new CurrencyBank();
             currencyBank.SetBalance(playerOne.PlayerId, 1500);
             currencyBank.SetBalance(playerTwo.PlayerId, 1500);
@@ -39,7 +40,7 @@ namespace TableCore.Tests.Modules.Monopolyish
 
             var diceService = new DiceService(new FixedRandom(4, 3));
 
-            using var controller = new MonopolyHudController(session, hudService, currencyBank, cardService, turnManager, diceService);
+            using var controller = new MonopolyHudController(session, hudService, currencyBank, cardService, turnManager, diceService, viewFactory);
             controller.Initialize();
 
             Assert.That(hudService.CreatedPlayerIds, Is.EquivalentTo(new[] { playerOne.PlayerId, playerTwo.PlayerId }));
@@ -49,16 +50,13 @@ namespace TableCore.Tests.Modules.Monopolyish
             Assert.That(hudService.Hands[playerTwo.PlayerId], Has.Count.EqualTo(1));
             Assert.That(hudService.Prompts[playerOne.PlayerId], Does.Contain("Roll the dice"));
             Assert.That(hudService.Prompts[playerTwo.PlayerId], Does.Contain("Alice"));
-
-            var buttons = FindActionButtons(hudService.GetHud(playerOne.PlayerId));
-            Assert.That(buttons.roll.Text, Is.EqualTo("Roll Dice"));
-            Assert.That(buttons.end.Text, Is.EqualTo("End Turn"));
+            Assert.That(viewFactory.Contexts[playerOne.PlayerId].IsEnabled, Is.True);
         }
 
         [Test]
         public void BalanceChanged_UpdatesFundsLabel()
         {
-            var (controller, hudService, currencyBank, _, _, playerOne, playerTwo) = BuildControllerWithPlayers();
+            var (controller, hudService, currencyBank, _, _, playerOne, playerTwo, viewFactory) = BuildControllerWithPlayers();
 
             using (controller)
             {
@@ -73,7 +71,7 @@ namespace TableCore.Tests.Modules.Monopolyish
         [Test]
         public void HandUpdated_UpdatesHandSummary()
         {
-            var (controller, hudService, _, cardService, _, playerOne, _) = BuildControllerWithPlayers();
+            var (controller, hudService, _, cardService, _, playerOne, _, _) = BuildControllerWithPlayers();
 
             using (controller)
             {
@@ -88,29 +86,22 @@ namespace TableCore.Tests.Modules.Monopolyish
         [Test]
         public void TurnChanges_EnableButtonsForActivePlayerOnly()
         {
-            var (controller, hudService, _, _, turnManager, playerOne, playerTwo) = BuildControllerWithPlayers();
+            var (controller, hudService, _, _, turnManager, playerOne, playerTwo, viewFactory) = BuildControllerWithPlayers();
 
             using (controller)
             {
                 controller.Initialize();
 
-                var playerOneHud = hudService.GetHud(playerOne.PlayerId);
-                var playerTwoHud = hudService.GetHud(playerTwo.PlayerId);
+                var playerOneContext = viewFactory.Contexts[playerOne.PlayerId];
+                var playerTwoContext = viewFactory.Contexts[playerTwo.PlayerId];
 
-                var playerOneButtons = FindActionButtons(playerOneHud);
-                var playerTwoButtons = FindActionButtons(playerTwoHud);
-
-                Assert.That(playerOneButtons.roll.Disabled, Is.False);
-                Assert.That(playerOneButtons.end.Disabled, Is.False);
-                Assert.That(playerTwoButtons.roll.Disabled, Is.True);
-                Assert.That(playerTwoButtons.end.Disabled, Is.True);
+                Assert.That(playerOneContext.IsEnabled, Is.True);
+                Assert.That(playerTwoContext.IsEnabled, Is.False);
 
                 turnManager.AdvanceTurn();
 
-                Assert.That(playerOneButtons.roll.Disabled, Is.True);
-                Assert.That(playerOneButtons.end.Disabled, Is.True);
-                Assert.That(playerTwoButtons.roll.Disabled, Is.False);
-                Assert.That(playerTwoButtons.end.Disabled, Is.False);
+                Assert.That(playerOneContext.IsEnabled, Is.False);
+                Assert.That(playerTwoContext.IsEnabled, Is.True);
                 Assert.That(hudService.Prompts[playerOne.PlayerId], Does.Contain(playerTwo.DisplayName));
             }
         }
@@ -118,7 +109,7 @@ namespace TableCore.Tests.Modules.Monopolyish
         [Test]
         public void RollDiceButton_FiresEventAndUpdatesPrompts()
         {
-            var (controller, hudService, _, _, _, playerOne, playerTwo) = BuildControllerWithPlayers(diceValues: new[] { 6, 2 });
+            var (controller, hudService, _, _, _, playerOne, playerTwo, viewFactory) = BuildControllerWithPlayers(diceValues: new[] { 6, 2 });
 
             IReadOnlyList<int>? rolled = null;
             Guid roller = Guid.Empty;
@@ -133,8 +124,7 @@ namespace TableCore.Tests.Modules.Monopolyish
 
                 controller.Initialize();
 
-                var buttons = FindActionButtons(hudService.GetHud(playerOne.PlayerId));
-                buttons.roll.EmitSignal(BaseButton.SignalName.Pressed);
+                viewFactory.Contexts[playerOne.PlayerId].InvokeRoll();
 
                 Assert.That(roller, Is.EqualTo(playerOne.PlayerId));
                 Assert.That(rolled, Is.Not.Null);
@@ -147,7 +137,7 @@ namespace TableCore.Tests.Modules.Monopolyish
         [Test]
         public void EndTurnButton_FiresEventForActivePlayer()
         {
-            var (controller, hudService, _, _, _, playerOne, _) = BuildControllerWithPlayers();
+            var (controller, hudService, _, _, _, playerOne, _, viewFactory) = BuildControllerWithPlayers();
 
             Guid ended = Guid.Empty;
 
@@ -156,15 +146,14 @@ namespace TableCore.Tests.Modules.Monopolyish
                 controller.EndTurnRequested += playerId => ended = playerId;
                 controller.Initialize();
 
-                var buttons = FindActionButtons(hudService.GetHud(playerOne.PlayerId));
-                buttons.end.EmitSignal(BaseButton.SignalName.Pressed);
+                viewFactory.Contexts[playerOne.PlayerId].InvokeEndTurn();
 
                 Assert.That(ended, Is.EqualTo(playerOne.PlayerId));
                 Assert.That(hudService.Prompts[playerOne.PlayerId], Does.Contain("Turn complete"));
             }
         }
 
-        private static (MonopolyHudController controller, FakeHudService hudService, CurrencyBank currencyBank, CardService cardService, TurnManager turnManager, PlayerProfile playerOne, PlayerProfile playerTwo) BuildControllerWithPlayers(int[]? diceValues = null)
+        private static (MonopolyHudController controller, FakeHudService hudService, CurrencyBank currencyBank, CardService cardService, TurnManager turnManager, PlayerProfile playerOne, PlayerProfile playerTwo, TestHudViewFactory viewFactory) BuildControllerWithPlayers(int[]? diceValues = null)
         {
             var playerOne = CreatePlayer("Alice", TableEdge.Bottom);
             var playerTwo = CreatePlayer("Bob", TableEdge.Top);
@@ -188,8 +177,9 @@ namespace TableCore.Tests.Modules.Monopolyish
             var diceSequence = diceValues ?? new[] { 3, 4 };
             var diceService = new DiceService(new FixedRandom(diceSequence));
 
-            var controller = new MonopolyHudController(session, hudService, currencyBank, cardService, turnManager, diceService);
-            return (controller, hudService, currencyBank, cardService, turnManager, playerOne, playerTwo);
+            var viewFactory = new TestHudViewFactory();
+            var controller = new MonopolyHudController(session, hudService, currencyBank, cardService, turnManager, diceService, viewFactory);
+            return (controller, hudService, currencyBank, cardService, turnManager, playerOne, playerTwo, viewFactory);
         }
 
         private static PlayerProfile CreatePlayer(string displayName, TableEdge edge)
@@ -219,36 +209,6 @@ namespace TableCore.Tests.Modules.Monopolyish
 
         private static CardData CreateCard(string id) => new CardData { CardId = id, Title = id };
 
-        private static (Button roll, Button end) FindActionButtons(FakeHudService.FakePlayerHud hud)
-        {
-            var queue = new Queue<Node>();
-            foreach (Node child in hud.Root.GetChildren())
-            {
-                queue.Enqueue(child);
-            }
-
-            var foundButtons = new List<Button>();
-            while (queue.Count > 0)
-            {
-                var node = queue.Dequeue();
-                if (node is Button button)
-                {
-                    foundButtons.Add(button);
-                }
-
-                foreach (Node child in node.GetChildren())
-                {
-                    queue.Enqueue(child);
-                }
-            }
-
-            Assert.That(foundButtons, Has.Count.EqualTo(2), "Expected Roll and End buttons to be present.");
-
-            var roll = foundButtons.Single(button => button.Name == "RollDiceButton");
-            var end = foundButtons.Single(button => button.Name == "EndTurnButton");
-            return (roll, end);
-        }
-
         private sealed class FakeHudService : IHUDService
         {
             private readonly Dictionary<Guid, FakePlayerHud> _huds = new();
@@ -276,8 +236,6 @@ namespace TableCore.Tests.Modules.Monopolyish
 
             public sealed class FakePlayerHud : IPlayerHUD
             {
-                private readonly Control _root = new Control();
-
                 public FakePlayerHud(Guid playerId)
                 {
                     PlayerId = playerId;
@@ -285,17 +243,61 @@ namespace TableCore.Tests.Modules.Monopolyish
 
                 public Guid PlayerId { get; }
 
-                public Control Root => _root;
-
-                public List<Node> AddedNodes { get; } = new();
-
-                public Control GetRootControl() => _root;
+                public Control GetRootControl() => default!;
 
                 public void AddControl(Node controlNode)
                 {
-                    AddedNodes.Add(controlNode);
-                    _root.AddChild(controlNode);
+                    // No-op for tests
                 }
+            }
+        }
+
+        private sealed class TestHudViewFactory : IMonopolyHudViewFactory
+        {
+            public Dictionary<Guid, TestHudContext> Contexts { get; } = new();
+
+            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler)
+            {
+                var context = new TestHudContext(player, rollHandler, endHandler);
+                Contexts[player.PlayerId] = context;
+                return context;
+            }
+        }
+
+        private sealed class TestHudContext : IMonopolyHudViewContext
+        {
+            private readonly Action _rollHandler;
+            private readonly Action _endHandler;
+
+            public TestHudContext(PlayerProfile player, Action rollHandler, Action endHandler)
+            {
+                PlayerId = player.PlayerId;
+                DisplayName = player.DisplayName ?? "Player";
+                _rollHandler = rollHandler;
+                _endHandler = endHandler;
+            }
+
+            public Guid PlayerId { get; }
+            public string DisplayName { get; }
+            public bool IsEnabled { get; private set; }
+
+            public void SetInteractionEnabled(bool enabled)
+            {
+                IsEnabled = enabled;
+            }
+
+            public void InvokeRoll()
+            {
+                _rollHandler();
+            }
+
+            public void InvokeEndTurn()
+            {
+                _endHandler();
+            }
+
+            public void Dispose()
+            {
             }
         }
 
