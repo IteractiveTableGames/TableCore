@@ -1,11 +1,12 @@
 using Godot;
+using TableCore.Core;
 
 namespace TableCore.Modules.Monopolyish
 {
     /// <summary>
     /// Simple circular token used to visualize player positions on the demo board.
     /// </summary>
-    public partial class MonopolyishTokenVisual : Node2D
+    public partial class MonopolyishTokenVisual : TokenController
     {
         [Export]
         public Color TokenColor { get; set; } = new Color(0.9f, 0.9f, 0.9f);
@@ -15,6 +16,7 @@ namespace TableCore.Modules.Monopolyish
 
         public override void _Ready()
         {
+            base._Ready();
             QueueRedraw();
         }
 

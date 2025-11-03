@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Godot;
 using TableCore.Core;
 using TableCore.Core.Modules;
@@ -134,8 +135,15 @@ namespace TableCore.Modules.Monopolyish
                 {
                     Name = $"Token_{profile.PlayerId}",
                     TokenColor = tokenColor,
-                    Position = _board.GetTileCenter(targetTile)
+                    Position = _board.GetTileCenter(targetTile),
+                    OwnerPlayerId = profile.PlayerId,
+                    TokenName = profile.DisplayName ?? "Player"
                 };
+
+                if (_services != null)
+                {
+                    token.AnimationService = _services.GetAnimationService();
+                }
 
                 _tokensRoot.AddChild(token);
                 _tokens[profile.PlayerId] = token;
@@ -201,24 +209,50 @@ namespace TableCore.Modules.Monopolyish
 
         private void HandleRollDiceRequested(Guid playerId, IReadOnlyList<int> dice)
         {
-            if (_board == null || !_tokens.TryGetValue(playerId, out var token))
-            {
-                return;
-            }
-
             var total = dice.Sum();
-            var currentIndex = _tokenTileIndices.TryGetValue(playerId, out var index) ? index : 0;
-            var nextIndex = currentIndex + total;
-            _tokenTileIndices[playerId] = nextIndex;
-
-            var targetPosition = _board.GetTileCenter(nextIndex);
-            token.Position = targetPosition;
+            _ = MoveTokenAsync(playerId, total);
         }
 
         private void HandleEndTurnRequested(Guid playerId)
         {
             var turnManager = _services?.GetTurnManager();
             turnManager?.AdvanceTurn();
+        }
+
+        private async Task MoveTokenAsync(Guid playerId, int stepCount)
+        {
+            if (_board == null || !_tokens.TryGetValue(playerId, out var token) || _services == null)
+            {
+                return;
+            }
+
+            var totalSteps = Math.Max(0, stepCount);
+            if (totalSteps == 0)
+            {
+                await token.BounceAsync();
+                return;
+            }
+
+            var startIndex = _tokenTileIndices.TryGetValue(playerId, out var index) ? index : 0;
+            var path = new List<Vector2>(totalSteps);
+
+            for (var i = 1; i <= totalSteps; i++)
+            {
+                path.Add(_board.GetTileCenter(startIndex + i));
+            }
+
+            try
+            {
+                await token.PlayMovePath(path);
+                _tokenTileIndices[playerId] = startIndex + totalSteps;
+                await token.HighlightAsync(new Color(1f, 0.95f, 0.5f, 1f));
+            }
+            catch (Exception ex)
+            {
+                GD.PushWarning($"Token animation failed: {ex.Message}");
+                token.Position = path.LastOrDefault(token.Position);
+                _tokenTileIndices[playerId] = startIndex + totalSteps;
+            }
         }
     }
 }
