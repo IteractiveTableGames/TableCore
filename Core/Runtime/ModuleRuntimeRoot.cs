@@ -101,6 +101,7 @@ namespace TableCore.Core.Runtime
                 return false;
             }
 
+            ClearLayer(_boardLayer);
             _moduleInstance = scene.Instantiate();
 
             if (_moduleInstance == null)
@@ -123,6 +124,10 @@ namespace TableCore.Core.Runtime
             {
                 _hudLayer = new CanvasLayer { Name = "HUDLayer" };
                 AddChild(_hudLayer);
+            }
+            else
+            {
+                ClearLayer(_hudLayer);
             }
 
             _services = new ModuleServices(Session!, GetTree(), _hudLayer, ReturnToLobby);
@@ -161,6 +166,22 @@ namespace TableCore.Core.Runtime
             if (!string.IsNullOrWhiteSpace(LobbyScenePath))
             {
                 GetTree().ChangeSceneToFile(LobbyScenePath);
+            }
+        }
+
+        private void ClearLayer(Node? layer)
+        {
+            if (layer == null)
+            {
+                return;
+            }
+
+            foreach (var child in layer.GetChildren())
+            {
+                if (child is Node node)
+                {
+                    node.QueueFree();
+                }
             }
         }
 
