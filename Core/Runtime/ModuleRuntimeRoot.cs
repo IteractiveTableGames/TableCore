@@ -188,7 +188,6 @@ namespace TableCore.Core.Runtime
         private sealed class ModuleServices : IModuleServices
         {
             private readonly SessionState _session;
-            private readonly SceneTree _sceneTree;
             private readonly CanvasLayer _hudLayer;
             private readonly Action _returnToLobby;
             private readonly TurnManager _turnManager = new();
@@ -196,15 +195,16 @@ namespace TableCore.Core.Runtime
             private readonly CurrencyBank _bank = new();
             private readonly CardService _cardService;
             private readonly HUDService _hudService;
+            private readonly AnimationService _animationService;
 
             public ModuleServices(SessionState session, SceneTree sceneTree, CanvasLayer hudLayer, Action returnToLobby)
             {
                 _session = session;
-                _sceneTree = sceneTree;
                 _hudLayer = hudLayer ?? throw new ArgumentNullException(nameof(hudLayer));
                 _returnToLobby = returnToLobby;
                 _hudService = new HUDService(_hudLayer, _session);
                 _cardService = new CardService(_hudService);
+                _animationService = new AnimationService(sceneTree);
             }
 
             public IReadOnlyList<PlayerProfile> GetPlayers() => _session.PlayerProfiles;
@@ -218,6 +218,8 @@ namespace TableCore.Core.Runtime
             public CardService GetCardService() => _cardService;
 
             public IHUDService GetHUDService() => _hudService;
+
+            public AnimationService GetAnimationService() => _animationService;
 
             public SessionState GetSessionState() => _session;
 

@@ -39,6 +39,11 @@ namespace TableCore.Core.Modules
         IHUDService GetHUDService();
 
         /// <summary>
+        /// Provides centralized animation helpers for scene nodes.
+        /// </summary>
+        AnimationService GetAnimationService();
+
+        /// <summary>
         /// Returns the current session snapshot for convenience.
         /// </summary>
         SessionState GetSessionState();

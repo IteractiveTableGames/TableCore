@@ -47,6 +47,7 @@ namespace TableCore.Tests.Modules.Monopolyish
             public CurrencyBank GetBank() => new();
             public CardService GetCardService() => new();
             public IHUDService GetHUDService() => new StubHudService();
+            public AnimationService GetAnimationService() => new AnimationService(null);
             public SessionState GetSessionState() => new();
             public void ReturnToLobby()
             {
