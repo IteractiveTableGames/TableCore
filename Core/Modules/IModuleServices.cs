@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TableCore.Core.Board;
 
 namespace TableCore.Core.Modules
 {
@@ -42,6 +43,11 @@ namespace TableCore.Core.Modules
         /// Provides centralized animation helpers for scene nodes.
         /// </summary>
         AnimationService GetAnimationService();
+
+        /// <summary>
+        /// Provides access to the shared board manager abstraction.
+        /// </summary>
+        IBoardManager GetBoardManager();
 
         /// <summary>
         /// Returns the current session snapshot for convenience.

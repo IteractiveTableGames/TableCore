@@ -36,7 +36,7 @@ namespace TableCore.Core
                 return;
             }
 
-            var tweenInstance = tween;
+            var tweenInstance = tween!;
 
             tweenInstance.TweenProperty(node, "position", to, durationMs / 1000.0)
                 .SetEase(Tween.EaseType.InOut)
@@ -64,7 +64,7 @@ namespace TableCore.Core
             var apex = original + new Vector2(0f, -Mathf.Abs(height));
             var halfDuration = Math.Max(0.01f, (float)(durationMs / 2000.0));
 
-            var tweenInstance = tween;
+            var tweenInstance = tween!;
 
             tweenInstance.TweenProperty(node, "position", apex, halfDuration)
                 .SetEase(Tween.EaseType.Out)
@@ -97,7 +97,7 @@ namespace TableCore.Core
             }
 
             var halfDuration = Math.Max(0.01f, durationMs / 2000.0);
-            var tweenInstance = tween;
+            var tweenInstance = tween!;
 
             tweenInstance.TweenProperty(item, "modulate", color, halfDuration)
                 .SetEase(Tween.EaseType.Out)

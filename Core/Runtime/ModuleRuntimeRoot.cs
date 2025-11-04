@@ -4,6 +4,7 @@ using System.IO;
 using Godot;
 using TableCore.Core;
 using TableCore.Core.Modules;
+using TableCore.Core.Board;
 using TableCore.Core.UI;
 
 namespace TableCore.Core.Runtime
@@ -196,6 +197,7 @@ namespace TableCore.Core.Runtime
             private readonly CardService _cardService;
             private readonly HUDService _hudService;
             private readonly AnimationService _animationService;
+            private readonly BoardManager _boardManager;
 
             public ModuleServices(SessionState session, SceneTree sceneTree, CanvasLayer hudLayer, Action returnToLobby)
             {
@@ -205,6 +207,7 @@ namespace TableCore.Core.Runtime
                 _hudService = new HUDService(_hudLayer, _session);
                 _cardService = new CardService(_hudService);
                 _animationService = new AnimationService(sceneTree);
+                _boardManager = new BoardManager(_animationService);
             }
 
             public IReadOnlyList<PlayerProfile> GetPlayers() => _session.PlayerProfiles;
@@ -220,6 +223,8 @@ namespace TableCore.Core.Runtime
             public IHUDService GetHUDService() => _hudService;
 
             public AnimationService GetAnimationService() => _animationService;
+
+            public IBoardManager GetBoardManager() => _boardManager;
 
             public SessionState GetSessionState() => _session;
 
