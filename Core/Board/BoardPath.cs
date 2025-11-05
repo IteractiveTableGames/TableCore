@@ -6,7 +6,7 @@ using System.Linq;
 namespace TableCore.Core.Board
 {
     /// <summary>
-    /// Represents an ordered sequence of board locations to traverse.
+    /// Represents an ordered sequence of board locations.
     /// </summary>
     public sealed class BoardPath : IReadOnlyList<BoardLocation>
     {

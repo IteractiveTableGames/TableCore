@@ -4,7 +4,7 @@ using Godot;
 namespace TableCore.Core.Board
 {
     /// <summary>
-    /// Represents a logical location on the board identified by a marker path and optional offset.
+    /// Identifies a logical position on the board.
     /// </summary>
     public readonly struct BoardLocation : IEquatable<BoardLocation>
     {
@@ -15,12 +15,12 @@ namespace TableCore.Core.Board
         }
 
         /// <summary>
-        /// Relative path (from the board root) to a Node2D that marks this location.
+        /// Relative path from the board root to a marker node.
         /// </summary>
         public string MarkerPath { get; }
 
         /// <summary>
-        /// Additional offset applied on top of the marker's position.
+        /// Additional offset from the marker.
         /// </summary>
         public Vector2 Offset { get; }
 
@@ -35,7 +35,6 @@ namespace TableCore.Core.Board
         public override int GetHashCode() => HashCode.Combine(MarkerPath.ToLowerInvariant(), Offset);
 
         public static bool operator ==(BoardLocation left, BoardLocation right) => left.Equals(right);
-
         public static bool operator !=(BoardLocation left, BoardLocation right) => !left.Equals(right);
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace TableCore.Core.Board
 {
     /// <summary>
-    /// Abstraction for positioning and animating tokens on a module-defined board.
+    /// Abstraction for placing and animating tokens on a module-defined board.
     /// </summary>
     public interface IBoardManager
     {
