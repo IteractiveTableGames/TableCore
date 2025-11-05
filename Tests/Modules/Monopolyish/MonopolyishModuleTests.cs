@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using Godot;
 using NUnit.Framework;
 using TableCore.Core;
+using TableCore.Core.Board;
 using TableCore.Core.Modules;
 using TableCore.Modules.Monopolyish;
 
@@ -48,10 +50,28 @@ namespace TableCore.Tests.Modules.Monopolyish
             public CardService GetCardService() => new();
             public IHUDService GetHUDService() => new StubHudService();
             public AnimationService GetAnimationService() => new AnimationService(null);
+            public IBoardManager GetBoardManager() => new StubBoardManager();
             public SessionState GetSessionState() => new();
             public void ReturnToLobby()
             {
             }
+        }
+
+        private sealed class StubBoardManager : IBoardManager
+        {
+            public void SetBoardRoot(Node2D boardRoot)
+            {
+            }
+
+            public void PlaceToken(Guid playerId, TokenController token, BoardLocation location)
+            {
+            }
+
+            public Task MoveToken(Guid playerId, TokenController token, BoardPath path) => Task.CompletedTask;
+
+            public BoardLocation? GetLocation(TokenController token) => null;
+
+            public Vector2 GetWorldPosition(BoardLocation location) => Vector2.Zero;
         }
 
         private sealed class StubHudService : IHUDService

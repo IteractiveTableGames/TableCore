@@ -6,6 +6,7 @@ using Godot;
 using TableCore.Core;
 using TableCore.Core.Modules;
 using TableCore.Core.Modules.Monopolyish;
+using TableCore.Core.Board;
 
 namespace TableCore.Modules.Monopolyish
 {
@@ -45,6 +46,7 @@ namespace TableCore.Modules.Monopolyish
 
             EnsureNodeReferences();
             CenterBoard();
+            InitializeBoardServices();
             InitializeTokens();
             InitializeHud();
 
@@ -145,9 +147,11 @@ namespace TableCore.Modules.Monopolyish
                     token.AnimationService = _services.GetAnimationService();
                 }
 
-                _tokensRoot.AddChild(token);
-                _tokens[profile.PlayerId] = token;
-                _tokenTileIndices[profile.PlayerId] = targetTile;
+            _tokensRoot.AddChild(token);
+            _tokens[profile.PlayerId] = token;
+            _tokenTileIndices[profile.PlayerId] = targetTile;
+
+                _services?.GetBoardManager().PlaceToken(profile.PlayerId, token, new BoardLocation(_board.GetMarkerPath(targetTile)));
             }
         }
 
@@ -234,25 +238,39 @@ namespace TableCore.Modules.Monopolyish
             }
 
             var startIndex = _tokenTileIndices.TryGetValue(playerId, out var index) ? index : 0;
-            var path = new List<Vector2>(totalSteps);
+            var boardManager = _services.GetBoardManager();
+            var steps = new List<BoardLocation>(totalSteps);
 
             for (var i = 1; i <= totalSteps; i++)
             {
-                path.Add(_board.GetTileCenter(startIndex + i));
+                steps.Add(new BoardLocation(_board.GetMarkerPath(startIndex + i)));
             }
 
             try
             {
-                await token.PlayMovePath(path);
+                await boardManager.MoveToken(playerId, token, new BoardPath(steps));
                 _tokenTileIndices[playerId] = startIndex + totalSteps;
-                await token.HighlightAsync(new Color(1f, 0.95f, 0.5f, 1f));
             }
             catch (Exception ex)
             {
                 GD.PushWarning($"Token animation failed: {ex.Message}");
-                token.Position = path.LastOrDefault(token.Position);
-                _tokenTileIndices[playerId] = startIndex + totalSteps;
+                if (steps.LastOrDefault() is { } last)
+                {
+                    token.Position = boardManager.GetWorldPosition(last);
+                    _tokenTileIndices[playerId] = startIndex + totalSteps;
+                }
             }
+        }
+
+        private void InitializeBoardServices()
+        {
+            if (_board == null || _services == null)
+            {
+                return;
+            }
+
+            var boardManager = _services.GetBoardManager();
+            boardManager.SetBoardRoot(_board);
         }
     }
 }
