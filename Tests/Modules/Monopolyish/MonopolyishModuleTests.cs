@@ -43,6 +43,8 @@ namespace TableCore.Tests.Modules.Monopolyish
 
         private sealed class StubModuleServices : IModuleServices
         {
+            private readonly StubBoardManager _boardManager = new();
+
             public IReadOnlyList<PlayerProfile> GetPlayers() => Array.Empty<PlayerProfile>();
             public TurnManager GetTurnManager() => new();
             public DiceService GetDiceService() => new();
@@ -50,7 +52,7 @@ namespace TableCore.Tests.Modules.Monopolyish
             public CardService GetCardService() => new();
             public IHUDService GetHUDService() => new StubHudService();
             public AnimationService GetAnimationService() => new AnimationService(null);
-            public IBoardManager GetBoardManager() => new StubBoardManager();
+            public IBoardManager GetBoardManager() => _boardManager;
             public SessionState GetSessionState() => new();
             public void ReturnToLobby()
             {

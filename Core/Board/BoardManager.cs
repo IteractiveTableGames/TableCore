@@ -1,20 +1,19 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Godot;
 
 namespace TableCore.Core.Board
 {
     /// <summary>
-    /// Default board manager that looks up marker nodes under the board root to position tokens.
+    /// Default implementation that looks up marker nodes under a board root.
     /// </summary>
     public sealed class BoardManager : IBoardManager
     {
         private readonly AnimationService _animationService;
-        private Node2D? _boardRoot;
         private readonly Dictionary<TokenController, BoardLocation> _tokenLocations = new();
         private readonly Dictionary<Guid, TokenController> _playerTokens = new();
+        private Node2D? _boardRoot;
 
         public BoardManager(AnimationService animationService)
         {
@@ -35,8 +34,6 @@ namespace TableCore.Core.Board
 
             var position = GetWorldPosition(location);
             token.Position = position;
-            token.OwnerPlayerId = playerId;
-            token.AnimationService ??= _animationService;
 
             _tokenLocations[token] = location;
             _playerTokens[playerId] = token;
@@ -60,11 +57,16 @@ namespace TableCore.Core.Board
                 return;
             }
 
-            var positions = path.Select(GetWorldPosition).ToList();
-            await token.PlayMovePath(positions);
+            foreach (var step in path)
+            {
+                var from = token.Position;
+                var to = GetWorldPosition(step);
+                await _animationService.AnimateMove(token, from, to, 250);
+                token.Position = to;
+            }
 
-            var lastLocation = path[path.Count - 1];
-            _tokenLocations[token] = lastLocation;
+            var finalLocation = path[path.Count - 1];
+            _tokenLocations[token] = finalLocation;
             _playerTokens[playerId] = token;
         }
 
@@ -75,7 +77,7 @@ namespace TableCore.Core.Board
                 throw new ArgumentNullException(nameof(token));
             }
 
-            return _tokenLocations.TryGetValue(token, out var location) ? location : null;
+            return _tokenLocations.TryGetValue(token, out var location) ? location : (BoardLocation?)null;
         }
 
         public Vector2 GetWorldPosition(BoardLocation location)
@@ -96,7 +98,7 @@ namespace TableCore.Core.Board
             }
 
             GD.PushWarning($"Board marker not found: {location.MarkerPath}");
-            return _boardRoot.GlobalPosition + location.Offset;
+            return _boardRoot.ToGlobal(location.Offset);
         }
     }
 }

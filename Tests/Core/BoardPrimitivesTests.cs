@@ -9,7 +9,7 @@ namespace TableCore.Tests.Core
     public class BoardPrimitivesTests
     {
         [Test]
-        public void BoardLocation_Equals_IgnoresCaseAndOffset()
+        public void BoardLocation_Equality_IgnoresCase()
         {
             var first = new BoardLocation("Markers/TileA", new Vector2(1, 2));
             var second = new BoardLocation("markers/tilea", new Vector2(1, 2));
@@ -19,30 +19,31 @@ namespace TableCore.Tests.Core
         }
 
         [Test]
-        public void BoardPath_PreservesInsertionOrder()
+        public void BoardPath_PreservesOrder()
         {
-            var locations = new[]
+            var steps = new[]
             {
                 new BoardLocation("A"),
                 new BoardLocation("B"),
                 new BoardLocation("C")
             };
 
-            var path = new BoardPath(locations);
+            var path = new BoardPath(steps);
 
             Assert.Multiple(() =>
             {
                 Assert.That(path.Count, Is.EqualTo(3));
-                Assert.That(path[0], Is.EqualTo(locations[0]));
-                Assert.That(path[1], Is.EqualTo(locations[1]));
-                Assert.That(path[2], Is.EqualTo(locations[2]));
+                Assert.That(path[0], Is.EqualTo(steps[0]));
+                Assert.That(path[1], Is.EqualTo(steps[1]));
+                Assert.That(path[2], Is.EqualTo(steps[2]));
             });
         }
 
         [Test]
-        public void BoardPath_IsEmpty_WhenConstructedWithNoSteps()
+        public void BoardPath_IsEmpty_WhenNoSteps()
         {
             var path = new BoardPath(Array.Empty<BoardLocation>());
+
             Assert.That(path.IsEmpty, Is.True);
             Assert.That(path.Count, Is.EqualTo(0));
         }
