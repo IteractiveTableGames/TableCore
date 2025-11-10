@@ -109,5 +109,17 @@ namespace TableCore.Modules.Monopolyish
 
             RefreshTileMetadata();
         }
+
+        public Node2D? GetTileVisual(int tileIndex)
+        {
+            var tilesRoot = GetNodeOrNull<Node>("Tiles");
+            if (tilesRoot == null || _tileCenters.Count == 0)
+            {
+                return null;
+            }
+
+            var wrapped = Math.Abs(tileIndex) % _tileCenters.Count;
+            return tilesRoot.GetNodeOrNull<Node2D>($"Tile{wrapped}");
+        }
     }
 }
