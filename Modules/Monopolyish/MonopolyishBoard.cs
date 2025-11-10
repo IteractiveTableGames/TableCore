@@ -16,14 +16,56 @@ namespace TableCore.Modules.Monopolyish
         private readonly List<Vector2> _tileCenters = new();
         private readonly List<string> _markerPaths = new();
 
-        public IReadOnlyList<Vector2> TileCenters => _tileCenters;
+        public IReadOnlyList<Vector2> TileCenters
+        {
+            get
+            {
+                EnsureTileMetadata();
+                return _tileCenters;
+            }
+        }
 
         public override void _Ready()
+        {
+            RefreshTileMetadata();
+        }
+
+        public Vector2 GetTileCenter(int tileIndex)
+        {
+            EnsureTileMetadata();
+
+            if (_tileCenters.Count == 0)
+            {
+                return Vector2.Zero;
+            }
+
+            var wrapped = Math.Abs(tileIndex) % _tileCenters.Count;
+            return _tileCenters[wrapped];
+        }
+
+        public string GetMarkerPath(int tileIndex)
+        {
+            EnsureTileMetadata();
+
+            if (_markerPaths.Count == 0)
+            {
+                return string.Empty;
+            }
+
+            var wrapped = Math.Abs(tileIndex) % _markerPaths.Count;
+            return _markerPaths[wrapped];
+        }
+
+        public void RefreshTileMetadata()
         {
             _tileCenters.Clear();
             _markerPaths.Clear();
 
-            foreach (var path in _tileMarkerPaths ?? Array.Empty<NodePath>())
+            var explicitPaths = _tileMarkerPaths?.Length > 0
+                ? _tileMarkerPaths
+                : BuildPathsFromMarkersRoot();
+
+            foreach (var path in explicitPaths)
             {
                 if (path.IsEmpty)
                 {
@@ -38,26 +80,34 @@ namespace TableCore.Modules.Monopolyish
             }
         }
 
-        public Vector2 GetTileCenter(int tileIndex)
+        private NodePath[] BuildPathsFromMarkersRoot()
         {
-            if (_tileCenters.Count == 0)
+            var markersRoot = GetNodeOrNull<Node>("Markers");
+            if (markersRoot == null)
             {
-                return Vector2.Zero;
+                return Array.Empty<NodePath>();
             }
 
-            var wrapped = Math.Abs(tileIndex) % _tileCenters.Count;
-            return _tileCenters[wrapped];
+            var paths = new List<NodePath>();
+            foreach (var child in markersRoot.GetChildren())
+            {
+                if (child is Node node)
+                {
+                    paths.Add(new NodePath($"{markersRoot.Name}/{node.Name}"));
+                }
+            }
+
+            return paths.ToArray();
         }
 
-        public string GetMarkerPath(int tileIndex)
+        private void EnsureTileMetadata()
         {
-            if (_markerPaths.Count == 0)
+            if (_tileCenters.Count > 0 && _markerPaths.Count > 0)
             {
-                return string.Empty;
+                return;
             }
 
-            var wrapped = Math.Abs(tileIndex) % _markerPaths.Count;
-            return _markerPaths[wrapped];
+            RefreshTileMetadata();
         }
     }
 }

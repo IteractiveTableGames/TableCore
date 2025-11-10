@@ -26,6 +26,12 @@ namespace TableCore.Core
 
         public AnimationService? AnimationService { get; set; }
 
+        /// <summary>
+        /// Represents the approximate radius (in pixels) this token occupies on the board.
+        /// Used by the board manager to avoid overlapping tokens.
+        /// </summary>
+        public virtual float GetFootprintRadius() => 20f;
+
         public override void _Ready()
         {
             _animatedSprite = GetNodeOrNull<AnimatedSprite2D>("AnimatedSprite2D");

@@ -83,6 +83,7 @@ namespace TableCore.Modules.Monopolyish
         {
             var boardPath = BoardPath.IsEmpty ? DefaultBoardPath : BoardPath.ToString();
             _board ??= GetNodeOrNull<MonopolyishBoard>(boardPath);
+            _board?.RefreshTileMetadata();
 
             if (_board != null && (_tokensRoot == null || !_tokensRoot.IsInsideTree()))
             {
@@ -121,7 +122,9 @@ namespace TableCore.Modules.Monopolyish
             _tokenTileIndices.Clear();
 
             var players = _session.PlayerProfiles;
-            var tileCount = Math.Max(1, _board.TileCenters.Count);
+            const int startingTileIndex = 0;
+            var startMarkerPath = _board.GetMarkerPath(startingTileIndex);
+            var startTileCenter = _board.GetTileCenter(startingTileIndex);
 
             for (var index = 0; index < players.Count; index++)
             {
@@ -131,13 +134,12 @@ namespace TableCore.Modules.Monopolyish
                     continue;
                 }
 
-                var targetTile = index % tileCount;
                 var tokenColor = profile.DisplayColor ?? new Color(0.85f, 0.85f, 0.85f);
                 var token = new MonopolyishTokenVisual
                 {
                     Name = $"Token_{profile.PlayerId}",
                     TokenColor = tokenColor,
-                    Position = _board.GetTileCenter(targetTile),
+                    Position = startTileCenter,
                     OwnerPlayerId = profile.PlayerId,
                     TokenName = profile.DisplayName ?? "Player"
                 };
@@ -149,9 +151,9 @@ namespace TableCore.Modules.Monopolyish
 
                 _tokensRoot.AddChild(token);
                 _tokens[profile.PlayerId] = token;
-                _tokenTileIndices[profile.PlayerId] = targetTile;
+                _tokenTileIndices[profile.PlayerId] = startingTileIndex;
 
-                _services?.GetBoardManager().PlaceToken(profile.PlayerId, token, new BoardLocation(_board.GetMarkerPath(targetTile)));
+                _services?.GetBoardManager().PlaceToken(profile.PlayerId, token, new BoardLocation(startMarkerPath));
             }
         }
 

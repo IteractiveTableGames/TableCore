@@ -17,6 +17,7 @@ namespace TableCore.Modules.Monopolyish
         public override void _Ready()
         {
             base._Ready();
+            ZIndex = 10;
             QueueRedraw();
         }
 
@@ -24,6 +25,11 @@ namespace TableCore.Modules.Monopolyish
         {
             DrawCircle(Vector2.Zero, Radius, TokenColor);
             DrawArc(Vector2.Zero, Radius + 2f, 0f, Mathf.Tau, 32, new Color(0f, 0f, 0f, 0.65f), 2f);
+        }
+
+        public override float GetFootprintRadius()
+        {
+            return Radius + 2f;
         }
     }
 }
