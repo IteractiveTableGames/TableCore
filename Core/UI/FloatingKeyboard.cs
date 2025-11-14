@@ -12,6 +12,7 @@ namespace TableCore.Core.UI
 		private readonly FloatingKeyboardModel _model = new();
 		private readonly List<(Button Button, string Key)> _keyButtons = new();
 		private VBoxContainer? _rowsContainer;
+		private Button? _closeButton;
 		private int _rowCount = 1;
 
 		public event Action<string>? KeyPressed
@@ -32,6 +33,8 @@ namespace TableCore.Core.UI
 			remove => _model.TextCommitted -= value;
 		}
 
+		public event Action? CloseRequested;
+
 		/// <summary>
 		/// Current text buffer maintained by the keyboard.
 		/// </summary>
@@ -47,10 +50,26 @@ namespace TableCore.Core.UI
 			base._Ready();
 
 			_rowsContainer = GetNodeOrNull<VBoxContainer>("Panel/Margin/Rows");
+			_closeButton = GetNodeOrNull<Button>("CloseButton");
+			if (_closeButton != null)
+			{
+				_closeButton.Pressed += OnCloseButtonPressed;
+			}
 			CacheButtons(_rowsContainer != null ? (Node)_rowsContainer : this);
 			_rowCount = Math.Max(1, _rowsContainer?.GetChildCount() ?? EstimateRowCount());
 
 			UpdatePivotOffset();
+			SetProcessUnhandledInput(true);
+		}
+
+		public override void _ExitTree()
+		{
+			if (_closeButton != null)
+			{
+				_closeButton.Pressed -= OnCloseButtonPressed;
+			}
+
+			base._ExitTree();
 		}
 
 		public override void _Notification(int what)
@@ -100,6 +119,37 @@ namespace TableCore.Core.UI
 		/// Replaces the keyboard text programmatically.
 		/// </summary>
 		public void SetText(string value) => _model.SetText(value);
+
+		/// <summary>
+		/// Requests that listeners close/dismiss the keyboard.
+		/// </summary>
+		public void RequestClose() => CloseRequested?.Invoke();
+
+		public override void _UnhandledInput(InputEvent @event)
+		{
+			base._UnhandledInput(@event);
+
+			if (!Visible)
+			{
+				return;
+			}
+
+			switch (@event)
+			{
+				case InputEventKey keyEvent when keyEvent.Pressed && !keyEvent.Echo:
+					if (keyEvent.Keycode == Key.Escape)
+					{
+						RequestClose();
+					}
+					break;
+				case InputEventJoypadButton joypadButton when joypadButton.Pressed:
+					if (joypadButton.ButtonIndex == JoyButton.B || joypadButton.ButtonIndex == JoyButton.Back)
+					{
+						RequestClose();
+					}
+					break;
+			}
+		}
 
 		private void CacheButtons(Node parent)
 		{
@@ -181,6 +231,11 @@ namespace TableCore.Core.UI
 		private void UpdatePivotOffset()
 		{
 			PivotOffset = Size / 2f;
+		}
+
+		private void OnCloseButtonPressed()
+		{
+			RequestClose();
 		}
 	}
 }

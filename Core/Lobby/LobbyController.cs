@@ -704,12 +704,14 @@ namespace TableCore.Lobby
 
 			var indicatorSize = view.TemplateSize;
 			var (center, rotation) = GetIndicatorPlacement(profile.Seat, indicatorSize);
+			var localCenter = _seatOverlayRoot.GetCanvasTransform().AffineInverse() * center;
 			view.Size = indicatorSize;
 			view.PivotOffset = indicatorSize / 2f;
-			view.Position = center - view.PivotOffset;
+			view.Position = localCenter - view.PivotOffset;
 			view.RotationDegrees = rotation;
 			view.Configure(GetDisplayName(profile), GetIndicatorColor(profile));
-			view.ZIndex = 2;
+			view.ZIndex = 200;
+			view.ZAsRelative = false;
 			_seatOverlayRoot.AddChild(view);
 			_seatIndicators[profile.PlayerId] = new SeatIndicatorElements(view);
 		}
@@ -729,11 +731,14 @@ namespace TableCore.Lobby
 
 			var indicatorSize = elements.View.TemplateSize;
 			var (center, rotation) = GetIndicatorPlacement(profile.Seat, indicatorSize);
+			var localCenter = _seatOverlayRoot!.GetCanvasTransform().AffineInverse() * center;
 			elements.View.Size = indicatorSize;
 			elements.View.PivotOffset = indicatorSize / 2f;
-			elements.View.Position = center - elements.View.PivotOffset;
+			elements.View.Position = localCenter - elements.View.PivotOffset;
 			elements.View.RotationDegrees = rotation;
 			elements.View.Configure(GetDisplayName(profile), GetIndicatorColor(profile));
+			elements.View.ZIndex = 200;
+			elements.View.ZAsRelative = false;
 		}
 
 		private void CreateCustomizationHud(PlayerProfile profile)
@@ -764,6 +769,7 @@ namespace TableCore.Lobby
 			hud.Initialize(profile, _playerPalette, _avatarOptions);
 			hud.ProfileChanged += OnPlayerProfileChanged;
 			hud.CustomizationCompleted += OnCustomizationCompleted;
+			hud.CustomizationCancelled += OnCustomizationCancelled;
 			_playerHudRoot.AddChild(hud);
 			var needsWait = !PlayerCustomizationHud.CanDisplayInSeat(profile.Seat);
 			hud.SetWaitMode(needsWait);
@@ -800,19 +806,57 @@ namespace TableCore.Lobby
 
 		private void OnCustomizationCompleted(PlayerProfile profile)
 		{
-			if (_customizationHuds.TryGetValue(profile.PlayerId, out var hud))
-			{
-				hud.ProfileChanged -= OnPlayerProfileChanged;
-				hud.CustomizationCompleted -= OnCustomizationCompleted;
-				_customizationHuds.Remove(profile.PlayerId);
-				hud.QueueFree();
-			}
-
+			DisposeCustomizationHud(profile.PlayerId);
 			_completedCustomizations.Add(profile.PlayerId);
 			UpdateSeatIndicator(profile);
 			RefreshPlayerDisplay();
 			ResolveHudOverlaps();
 			RefreshStartButtonState();
+		}
+
+		private void OnCustomizationCancelled(PlayerProfile profile)
+		{
+			var playerId = profile.PlayerId;
+			DisposeCustomizationHud(playerId);
+			RemoveSeatIndicator(playerId);
+
+			if (!PlayerRoster.RemovePlayer(_sessionState, playerId, _completedCustomizations, out var removedProfile))
+			{
+				return;
+			}
+
+			UpdateInputRouterSession();
+			RefreshPlayerDisplay();
+			ResolveHudOverlaps();
+			RefreshStartButtonState();
+
+			var seatEdge = removedProfile?.Seat?.Edge.ToString().ToLowerInvariant() ?? "table";
+			UpdateStatusMessage($"Cancelled player slot near the {seatEdge} edge.");
+		}
+
+		private void DisposeCustomizationHud(Guid playerId)
+		{
+			if (!_customizationHuds.TryGetValue(playerId, out var hud))
+			{
+				return;
+			}
+
+			hud.ProfileChanged -= OnPlayerProfileChanged;
+			hud.CustomizationCompleted -= OnCustomizationCompleted;
+			hud.CustomizationCancelled -= OnCustomizationCancelled;
+			_customizationHuds.Remove(playerId);
+			hud.QueueFree();
+		}
+
+		private void RemoveSeatIndicator(Guid playerId)
+		{
+			if (!_seatIndicators.TryGetValue(playerId, out var elements))
+			{
+				return;
+			}
+
+			_seatIndicators.Remove(playerId);
+			elements.View.QueueFree();
 		}
 
 		private static string GetDisplayName(PlayerProfile profile)

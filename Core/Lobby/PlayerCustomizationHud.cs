@@ -13,7 +13,8 @@ namespace TableCore.Lobby
     {
         private const float HorizontalMargin = 12f;
         private const float VerticalMargin = 12f;
-        private const float BottomEdgePadding = 14f;
+        private const float BottomEdgePadding = 0f;
+        private const float IndicatorClearance = 76f;
         private const float MaxWidth = 360f;
         private const float MaxHeight = 210f;
         private const float MinLengthRequirement = 260f;
@@ -38,9 +39,11 @@ namespace TableCore.Lobby
         private bool _isWaiting;
         private bool _spin;
         private bool _suppressCallbacks;
+        private bool _isClosing;
 
         public event Action<PlayerProfile>? ProfileChanged;
         public event Action<PlayerProfile>? CustomizationCompleted;
+        public event Action<PlayerProfile>? CustomizationCancelled;
 
         public bool IsWaiting => _isWaiting;
         public SeatZone? CurrentSeat => _currentSeat;
@@ -87,6 +90,7 @@ namespace TableCore.Lobby
 
             _keyboard.TextChanged += OnKeyboardTextChanged;
             _keyboard.TextCommitted += OnKeyboardTextCommitted;
+            _keyboard.CloseRequested += OnKeyboardCloseRequested;
 
             PopulateDropdowns();
             SyncFromProfile();
@@ -104,6 +108,13 @@ namespace TableCore.Lobby
             if (_model is not null)
             {
                 _model.ProfileChanged -= HandleProfileChanged;
+            }
+
+            if (_keyboard != null)
+            {
+                _keyboard.TextChanged -= OnKeyboardTextChanged;
+                _keyboard.TextCommitted -= OnKeyboardTextCommitted;
+                _keyboard.CloseRequested -= OnKeyboardCloseRequested;
             }
 
             SetProcess(false);
@@ -178,6 +189,66 @@ namespace TableCore.Lobby
             RotationDegrees = seatZone.RotationDegrees;
 
             AdjustLayout(size);
+        }
+
+        private void OnKeyboardCloseRequested()
+        {
+            if (_player is null || _isClosing)
+            {
+                return;
+            }
+
+            _isClosing = true;
+            if (_keyboard != null)
+            {
+                _keyboard.CloseRequested -= OnKeyboardCloseRequested;
+            }
+            MouseFilter = MouseFilterEnum.Ignore;
+            StartDismissAnimation();
+        }
+
+        private void StartDismissAnimation()
+        {
+            if (!IsInsideTree())
+            {
+                EmitCancellation();
+                return;
+            }
+
+            var tween = CreateTween();
+            if (tween is null)
+            {
+                EmitCancellation();
+                return;
+            }
+
+            var startScale = Scale;
+            if (startScale == Vector2.Zero)
+            {
+                startScale = Vector2.One;
+            }
+
+            var targetScale = startScale * 0.9f;
+            var fadeTarget = Modulate;
+            fadeTarget.A = 0f;
+
+            tween.TweenProperty(this, "scale", targetScale, 0.22f)
+                .SetTrans(Tween.TransitionType.Quad)
+                .SetEase(Tween.EaseType.InOut);
+            tween.TweenProperty(this, "modulate", fadeTarget, 0.22f)
+                .SetTrans(Tween.TransitionType.Quad)
+                .SetEase(Tween.EaseType.InOut);
+            tween.Finished += EmitCancellation;
+        }
+
+        private void EmitCancellation()
+        {
+            if (_player is null)
+            {
+                return;
+            }
+
+            CustomizationCancelled?.Invoke(_player);
         }
 
         private void PopulateDropdowns()
@@ -389,10 +460,10 @@ namespace TableCore.Lobby
             {
                 TableEdge.Bottom => new Vector2(
                     seatZone.ScreenRegion.Position.X + (seatZone.ScreenRegion.Size.X - size.X) / 2f,
-                    seatZone.ScreenRegion.End.Y - size.Y - BottomEdgePadding),
+                    seatZone.ScreenRegion.End.Y - size.Y - BottomEdgePadding - IndicatorClearance),
                 TableEdge.Top => new Vector2(
                     seatZone.ScreenRegion.Position.X + (seatZone.ScreenRegion.Size.X - size.X) / 2f,
-                    seatZone.ScreenRegion.Position.Y),
+                    seatZone.ScreenRegion.Position.Y + IndicatorClearance),
                 TableEdge.Left or TableEdge.Right => seatZone.ScreenRegion.Position + (seatZone.ScreenRegion.Size / 2f) - (size / 2f),
                 _ => seatZone.ScreenRegion.Position
             };
