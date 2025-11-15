@@ -25,7 +25,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 
-[node name="PlayerHUDRoot" type="Control" parent="."]
+[node name="PlayerHUDLayer" type="CanvasLayer" parent="."]
+layer = 30
+
+[node name="PlayerHUDRoot" type="Control" parent="PlayerHUDLayer"]
 z_index = 2
 anchors_preset = 0
 anchor_right = 1.0

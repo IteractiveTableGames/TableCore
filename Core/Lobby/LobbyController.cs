@@ -88,7 +88,7 @@ namespace TableCore.Lobby
 			_statusLabel = GetNodeOrNull<Label>("Prompts/StatusMessage");
 			_inputRouter = GetNodeOrNull<InputRouter>("InputRouter");
 			_seatOverlayRoot = GetNodeOrNull<Control>("SeatOverlays");
-			_playerHudRoot = GetNodeOrNull<Control>("PlayerHUDRoot");
+			_playerHudRoot = GetNodeOrNull<Control>("PlayerHUDLayer/PlayerHUDRoot");
 			_customizationHudScene ??= ResourceLoader.Load<PackedScene>("res://Core/Lobby/PlayerCustomizationHud.tscn");
 			_seatIndicatorScene ??= ResourceLoader.Load<PackedScene>("res://Core/Lobby/SeatIndicator.tscn");
 			if (_seatIndicatorScene?.Instantiate() is SeatIndicatorView indicatorTemplate)
