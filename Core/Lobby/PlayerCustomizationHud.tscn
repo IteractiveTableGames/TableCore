@@ -34,12 +34,24 @@ size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 6
 
-[node name="NameLabel" type="Label" parent="Panel/Margin/Content"]
+[node name="HeaderRow" type="HBoxContainer" parent="Panel/Margin/Content"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="Panel/Margin/Content/HeaderRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
 text = "Player"
 horizontal_alignment = 1
+
+[node name="CloseButton" type="Button" parent="Panel/Margin/Content/HeaderRow"]
+layout_mode = 2
+focus_mode = 0
+text = "X"
+size_flags_horizontal = 8
+tooltip_text = "Cancel customization"
 
 [node name="SelectionRow" type="HBoxContainer" parent="Panel/Margin/Content"]
 layout_mode = 2

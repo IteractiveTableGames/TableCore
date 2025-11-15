@@ -15,10 +15,10 @@ namespace TableCore.Lobby
         private const float VerticalMargin = 12f;
         private const float BottomEdgePadding = 0f;
         private const float IndicatorClearance = 76f;
-        private const float MaxWidth = 360f;
-        private const float MaxHeight = 210f;
-        private const float MinLengthRequirement = 260f;
-        private const float MinThicknessRequirement = 180f;
+        private const float DesignWidth = 492f;
+        private const float DesignHeight = 258f;
+        private const float MinLengthRequirement = DesignWidth + (HorizontalMargin * 2f);
+        private const float MinThicknessRequirement = DesignHeight + (VerticalMargin * 2f);
 
         private PlayerProfile? _player;
         private PlayerCustomizationModel? _model;
@@ -35,6 +35,7 @@ namespace TableCore.Lobby
         private CenterContainer _waitOverlay = default!;
         private TextureRect _waitSpinner = default!;
         private Label _waitLabel = default!;
+        private Button? _closeButton;
 
         private bool _isWaiting;
         private bool _spin;
@@ -67,7 +68,7 @@ namespace TableCore.Lobby
             base._Ready();
 
             _contentRoot = GetNode<VBoxContainer>("Panel/Margin/Content");
-            _nameLabel = GetNode<Label>("Panel/Margin/Content/NameLabel");
+            _nameLabel = GetNode<Label>("Panel/Margin/Content/HeaderRow/NameLabel");
             _colorDropdown = GetNode<OptionButton>("Panel/Margin/Content/SelectionRow/ColorColumn/ColorRow/ColorDropdown");
             _colorSwatch = GetNode<ColorRect>("Panel/Margin/Content/SelectionRow/ColorColumn/ColorRow/ColorSwatch");
             _avatarDropdown = GetNode<OptionButton>("Panel/Margin/Content/SelectionRow/AvatarColumn/AvatarDropdown");
@@ -76,6 +77,7 @@ namespace TableCore.Lobby
             _waitOverlay = GetNode<CenterContainer>("WaitOverlay");
             _waitSpinner = GetNode<TextureRect>("WaitOverlay/WaitPanel/WaitVBox/Spinner");
             _waitLabel = GetNode<Label>("WaitOverlay/WaitPanel/WaitVBox/WaitLabel");
+            _closeButton = GetNodeOrNull<Button>("Panel/Margin/Content/HeaderRow/CloseButton");
 
             if (_player is null || _model is null)
             {
@@ -91,6 +93,10 @@ namespace TableCore.Lobby
             _keyboard.TextChanged += OnKeyboardTextChanged;
             _keyboard.TextCommitted += OnKeyboardTextCommitted;
             _keyboard.CloseRequested += OnKeyboardCloseRequested;
+            if (_closeButton != null)
+            {
+                _closeButton.Pressed += OnCloseButtonPressed;
+            }
 
             PopulateDropdowns();
             SyncFromProfile();
@@ -115,6 +121,10 @@ namespace TableCore.Lobby
                 _keyboard.TextChanged -= OnKeyboardTextChanged;
                 _keyboard.TextCommitted -= OnKeyboardTextCommitted;
                 _keyboard.CloseRequested -= OnKeyboardCloseRequested;
+            }
+            if (_closeButton != null)
+            {
+                _closeButton.Pressed -= OnCloseButtonPressed;
             }
 
             SetProcess(false);
@@ -180,15 +190,13 @@ namespace TableCore.Lobby
             }
 
             var seatZone = _currentSeat;
-            var size = CalculateSize(seatZone, _isWaiting);
+            var size = CalculateHudSize(seatZone, _isWaiting);
             CustomMinimumSize = size;
             Size = size;
             PivotOffset = size / 2f;
 
             Position = CalculatePosition(seatZone, size);
             RotationDegrees = seatZone.RotationDegrees;
-
-            AdjustLayout(size);
         }
 
         private void OnKeyboardCloseRequested()
@@ -205,6 +213,17 @@ namespace TableCore.Lobby
             }
             MouseFilter = MouseFilterEnum.Ignore;
             StartDismissAnimation();
+        }
+
+        private void OnCloseButtonPressed()
+        {
+            if (_keyboard is not null)
+            {
+                _keyboard.RequestClose();
+                return;
+            }
+
+            OnKeyboardCloseRequested();
         }
 
         private void StartDismissAnimation()
@@ -414,42 +433,15 @@ namespace TableCore.Lobby
             CustomizationCompleted?.Invoke(_player);
         }
 
-        private void AdjustLayout(Vector2 size)
+        internal static Vector2 CalculateHudSize(SeatZone seatZone, bool waiting)
         {
-            if (_keyboard is null || _keyboardContainer is null)
-            {
-                return;
-            }
-
-            if (_isWaiting)
-            {
-                _keyboardContainer.CustomMinimumSize = Vector2.Zero;
-                _keyboard.CustomMinimumSize = Vector2.Zero;
-                return;
-            }
-
-            var keyboardHeight = Mathf.Clamp(size.Y * 0.42f, 88f, size.Y * 0.6f);
-            var rowCount = Math.Max(1, _keyboard.RowCount);
-            var keyHeight = Mathf.Clamp(keyboardHeight / rowCount, 22f, 34f);
-
-            _keyboard.SetKeyHeight(keyHeight);
-            _keyboard.CustomMinimumSize = new Vector2(size.X, keyboardHeight);
-            _keyboardContainer.CustomMinimumSize = new Vector2(size.X, keyboardHeight);
-        }
-
-        private Vector2 CalculateSize(SeatZone seatZone, bool waiting)
-        {
-            var (lengthLimit, thicknessLimit) = GetSeatDimensions(seatZone);
-
             if (waiting)
             {
-                var dimension = Mathf.Clamp(Mathf.Min(lengthLimit, thicknessLimit) * 0.45f, 80f, 140f);
+                var dimension = Mathf.Clamp(Mathf.Min(DesignWidth, DesignHeight) * 0.4f, 80f, 140f);
                 return new Vector2(dimension, dimension);
             }
 
-            var width = Mathf.Clamp(lengthLimit - (HorizontalMargin * 2f), 220f, Mathf.Min(lengthLimit, MaxWidth));
-            var height = Mathf.Clamp(thicknessLimit - (VerticalMargin * 2f), 160f, Mathf.Min(thicknessLimit, MaxHeight));
-            return new Vector2(width, height);
+            return new Vector2(DesignWidth, DesignHeight);
         }
 
         private Vector2 CalculatePosition(SeatZone seatZone, Vector2 size)

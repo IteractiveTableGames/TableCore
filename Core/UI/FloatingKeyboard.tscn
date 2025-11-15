@@ -32,19 +32,6 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("1")
 
-[node name="CloseButton" type="Button" parent="."]
-layout_mode = 0
-anchor_left = 1.0
-anchor_right = 1.0
-anchor_bottom = 0.0
-offset_left = -52.0
-offset_top = 6.0
-offset_right = -10.0
-offset_bottom = 38.0
-focus_mode = 0
-text = "X"
-tooltip_text = "Close keyboard"
-
 [node name="Margin" type="MarginContainer" parent="Panel"]
 layout_mode = 2
 
