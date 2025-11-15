@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Godot;
 using NUnit.Framework;
 using TableCore.Core;
+using TableCore.Core.UI;
 
 namespace TableCore.Tests.Core
 {
@@ -118,6 +120,14 @@ namespace TableCore.Tests.Core
             {
             }
 
+            public void ConfigureHudPlacement(HudPlacementOptions options)
+            {
+            }
+
+            public void SetSeatRegionResolver(Func<SeatZone, Rect2>? resolver)
+            {
+            }
+
             private sealed class NullPlayerHud : IPlayerHUD
             {
                 public NullPlayerHud(Guid playerId)
@@ -127,7 +137,7 @@ namespace TableCore.Tests.Core
 
                 public Guid PlayerId { get; }
 
-                public Godot.Control GetRootControl() => null;
+                public Control GetRootControl() => null;
 
                 public void AddControl(Godot.Node controlNode)
                 {

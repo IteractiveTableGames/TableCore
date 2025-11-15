@@ -13,6 +13,8 @@ namespace TableCore.Core.UI
         private readonly CanvasLayer _hudLayer;
         private readonly SessionState _sessionState;
         private readonly Dictionary<Guid, PlayerHud> _hudsByPlayer = new();
+        private HudPlacementOptions _placementOptions = HudPlacementOptions.Default;
+        private Func<SeatZone, Rect2>? _seatRegionResolver;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HUDService"/> class.
@@ -49,7 +51,7 @@ namespace TableCore.Core.UI
             }
 
             var seat = player.Seat;
-            var layout = ComputeLayout(seat);
+            var layout = ComputeLayoutForSeat(seat);
             var wrapper = CreateWrapperControl(player, layout);
             var hudRoot = CreateRotatedRootControl(player, layout);
             wrapper.AddChild(hudRoot);
@@ -59,9 +61,21 @@ namespace TableCore.Core.UI
 
             _hudLayer.AddChild(wrapper);
 
-            var hud = new PlayerHud(player.PlayerId, hudRoot, hudPanel);
+            var hud = new PlayerHud(player.PlayerId, wrapper, hudRoot, hudPanel);
             _hudsByPlayer[player.PlayerId] = hud;
             return hud;
+        }
+
+        public void ConfigureHudPlacement(HudPlacementOptions options)
+        {
+            _placementOptions = options?.Clone() ?? HudPlacementOptions.Default;
+            ReapplyLayouts();
+        }
+
+        public void SetSeatRegionResolver(Func<SeatZone, Rect2>? resolver)
+        {
+            _seatRegionResolver = resolver;
+            ReapplyLayouts();
         }
 
         /// <inheritdoc/>
@@ -93,12 +107,23 @@ namespace TableCore.Core.UI
 
         internal static HudLayout ComputeLayout(SeatZone seat)
         {
-            var rect = seat.ScreenRegion;
-            var center = rect.Size / 2f;
+            var rect = ApplyPlacementOptions(seat, HudPlacementOptions.Default);
+            return BuildLayout(seat, rect);
+        }
+
+        private HudLayout ComputeLayoutForSeat(SeatZone seat)
+        {
+            var rect = _seatRegionResolver?.Invoke(seat) ?? ApplyPlacementOptions(seat, _placementOptions);
+            return BuildLayout(seat, rect);
+        }
+
+        private static HudLayout BuildLayout(SeatZone seat, Rect2 region)
+        {
+            var center = region.Size / 2f;
 
             return new HudLayout(
-                wrapperPosition: rect.Position,
-                wrapperSize: rect.Size,
+                wrapperPosition: region.Position,
+                wrapperSize: region.Size,
                 rootPosition: center,
                 rootPivot: center,
                 rotationDegrees: seat.RotationDegrees);
@@ -228,17 +253,97 @@ namespace TableCore.Core.UI
             public VBoxContainer CustomContent { get; }
         }
 
+        private void ReapplyLayouts()
+        {
+            foreach (var profile in _sessionState.PlayerProfiles)
+            {
+                if (profile.Seat == null)
+                {
+                    continue;
+                }
+
+                if (!_hudsByPlayer.TryGetValue(profile.PlayerId, out var hud))
+                {
+                    continue;
+                }
+
+                var layout = ComputeLayoutForSeat(profile.Seat);
+                ApplyLayout(hud, layout);
+            }
+        }
+
+        private static void ApplyLayout(PlayerHud hud, HudLayout layout)
+        {
+            hud.Wrapper.Position = layout.WrapperPosition;
+            hud.Wrapper.Size = layout.WrapperSize;
+            hud.Wrapper.CustomMinimumSize = layout.WrapperSize;
+            hud.Root.Position = layout.RootPosition;
+            hud.Root.PivotOffset = layout.RootPivot;
+            hud.Root.CustomMinimumSize = layout.WrapperSize;
+            hud.Root.Size = layout.WrapperSize;
+            hud.Root.RotationDegrees = layout.RotationDegrees;
+        }
+
+        internal static Rect2 ApplyPlacementOptions(SeatZone seat, HudPlacementOptions options)
+        {
+            var position = seat.ScreenRegion.Position;
+            var size = seat.ScreenRegion.Size;
+            var clearance = Mathf.Max(0f, options.BoardClearance);
+            var padding = Mathf.Max(0f, options.EdgePadding);
+            var minDimension = 1f;
+
+            switch (seat.Edge)
+            {
+                case TableEdge.Bottom:
+                {
+                    var maxClear = Math.Max(0f, size.Y - padding - minDimension);
+                    var applied = Math.Min(clearance, maxClear);
+                    position.Y += applied;
+                    size.Y = Mathf.Max(minDimension, size.Y - applied - padding);
+                    break;
+                }
+                case TableEdge.Top:
+                {
+                    var maxClear = Math.Max(0f, size.Y - padding - minDimension);
+                    var applied = Math.Min(clearance, maxClear);
+                    size.Y = Mathf.Max(minDimension, size.Y - applied - padding);
+                    position.Y += padding;
+                    break;
+                }
+                case TableEdge.Left:
+                {
+                    var maxClear = Math.Max(0f, size.X - padding - minDimension);
+                    var applied = Math.Min(clearance, maxClear);
+                    size.X = Mathf.Max(minDimension, size.X - applied - padding);
+                    position.X += padding;
+                    break;
+                }
+                case TableEdge.Right:
+                {
+                    var maxClear = Math.Max(0f, size.X - padding - minDimension);
+                    var applied = Math.Min(clearance, maxClear);
+                    position.X += applied;
+                    size.X = Mathf.Max(minDimension, size.X - applied - padding);
+                    break;
+                }
+            }
+
+            return new Rect2(position, size);
+        }
+
         private sealed class PlayerHud : IPlayerHUD
         {
             private readonly HudPanel _panel;
 
-            public PlayerHud(Guid playerId, Control root, HudPanel panel)
+            public PlayerHud(Guid playerId, Control wrapper, Control root, HudPanel panel)
             {
                 PlayerId = playerId;
+                Wrapper = wrapper;
                 Root = root;
                 _panel = panel;
             }
 
+            public Control Wrapper { get; }
             public Control Root { get; }
 
             public Guid PlayerId { get; }

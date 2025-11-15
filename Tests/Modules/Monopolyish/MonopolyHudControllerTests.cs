@@ -5,6 +5,7 @@ using Godot;
 using NUnit.Framework;
 using TableCore.Core;
 using TableCore.Core.Modules.Monopolyish;
+using TableCore.Core.UI;
 
 #nullable enable
 
@@ -231,6 +232,14 @@ namespace TableCore.Tests.Modules.Monopolyish
             public void UpdateHand(Guid playerId, IReadOnlyList<CardData> cards) => Hands[playerId] = cards ?? Array.Empty<CardData>();
 
             public void SetPrompt(Guid playerId, string message) => Prompts[playerId] = message;
+
+            public void ConfigureHudPlacement(HudPlacementOptions options)
+            {
+            }
+
+            public void SetSeatRegionResolver(Func<SeatZone, Rect2>? resolver)
+            {
+            }
 
             public FakePlayerHud GetHud(Guid playerId) => _huds[playerId];
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Godot;
+using TableCore.Core.UI;
 
 namespace TableCore.Core
 {
@@ -36,6 +37,18 @@ namespace TableCore.Core
         /// <param name="playerId">The player identifier.</param>
         /// <param name="message">The prompt message.</param>
         void SetPrompt(Guid playerId, string message);
+
+        /// <summary>
+        /// Configures default HUD placement behaviour within each seat zone.
+        /// </summary>
+        /// <param name="options">Placement options to apply.</param>
+        void ConfigureHudPlacement(HudPlacementOptions options);
+
+        /// <summary>
+        /// Sets a custom resolver that can override the computed seat region.
+        /// </summary>
+        /// <param name="resolver">Resolver invoked for each seat, or null to restore default behaviour.</param>
+        void SetSeatRegionResolver(Func<SeatZone, Rect2>? resolver);
     }
 
     /// <summary>
