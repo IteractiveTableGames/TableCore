@@ -33,8 +33,8 @@ namespace TableCore.Lobby
 		[Export(PropertyHint.Range, "2,60,1")]
 		public float SeatIndicatorThickness { get; set; } = 12.0f;
 
-		[Export(PropertyHint.Range, "0.05,0.5,0.05")]
-		public float MaxSeatShiftFraction { get; set; } = 0.35f;
+		[Export(PropertyHint.Range, "0,80,1")]
+		public float SeatIndicatorGap { get; set; } = 24.0f;
 
 		[Export]
 		public string JoinPromptText { get; set; } = "Touch and hold near an edge to join the table";
@@ -74,6 +74,7 @@ namespace TableCore.Lobby
 		private Control? _moduleEmptyState;
 		private Button? _startGameButton;
 		private readonly ModuleLoader _moduleLoader = new();
+		private Vector2 _seatIndicatorTemplateSize = new Vector2(220f, 72f);
 
 		public SessionState Session => _sessionState;
 
@@ -90,6 +91,11 @@ namespace TableCore.Lobby
 			_playerHudRoot = GetNodeOrNull<Control>("PlayerHUDRoot");
 			_customizationHudScene ??= ResourceLoader.Load<PackedScene>("res://Core/Lobby/PlayerCustomizationHud.tscn");
 			_seatIndicatorScene ??= ResourceLoader.Load<PackedScene>("res://Core/Lobby/SeatIndicator.tscn");
+			if (_seatIndicatorScene?.Instantiate() is SeatIndicatorView indicatorTemplate)
+			{
+				_seatIndicatorTemplateSize = indicatorTemplate.TemplateSize;
+				indicatorTemplate.Free();
+			}
 			_moduleList = GetNodeOrNull<ItemList>("ModulePanel/Content/ModuleListContainer/ModuleList");
 			_moduleIcon = GetNodeOrNull<TextureRect>("ModulePanel/Content/ModuleDetails/Icon");
 			_moduleNameLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Name");
@@ -254,8 +260,9 @@ namespace TableCore.Lobby
 			var initialSeatZone = LobbySeatPlanner.CreateSeatZone(edge, viewportRect, HudStripThickness, HudStripLength, anchorPoint);
 			var seatItems = BuildSeatAssignmentItems(edge, initialSeatZone);
 			var desiredCenters = seatItems.Select(item => item.DesiredCenter).ToList();
+			var seatLengths = seatItems.Select(item => item.SeatLength).ToList();
 
-			if (!LobbySeatPlanner.TryArrangeSeatCenters(edge, viewportRect, HudStripLength, MaxSeatShiftFraction, desiredCenters, out var arrangedCenters))
+			if (!LobbySeatPlanner.TryArrangeSeatCenters(edge, viewportRect, seatLengths, desiredCenters, out var arrangedCenters))
 			{
 				UpdateStatusMessage("Not enough space on this edge.");
 				return false;
@@ -265,14 +272,13 @@ namespace TableCore.Lobby
 
 			for (var index = 0; index < seatItems.Count; index++)
 			{
+				var item = seatItems[index];
 				var arrangedZone = LobbySeatPlanner.CreateSeatZoneFromAxisCenter(
 					edge,
 					viewportRect,
 					HudStripThickness,
-					HudStripLength,
+					item.SeatLength,
 					arrangedCenters[index]);
-
-				var item = seatItems[index];
 
 				if (item.Player != null)
 				{
@@ -652,7 +658,7 @@ namespace TableCore.Lobby
 			RefreshStartButtonState();
 		}
 
-		private List<SeatAssignmentItem> BuildSeatAssignmentItems(TableEdge edge, SeatZone newSeatZone)
+		private List<SeatAssignmentItem> BuildSeatAssignmentItems(TableEdge edge, SeatZone? newSeatZone = null)
 		{
 			var items = new List<SeatAssignmentItem>();
 
@@ -666,15 +672,20 @@ namespace TableCore.Lobby
 				items.Add(new SeatAssignmentItem
 				{
 					Player = profile,
-					DesiredCenter = GetAxisCenter(profile.Seat, edge)
+					DesiredCenter = GetAxisCenter(profile.Seat, edge),
+					SeatLength = GetSeatLengthForProfile(profile)
 				});
 			}
 
-			items.Add(new SeatAssignmentItem
+			if (newSeatZone != null)
 			{
-				Player = null,
-				DesiredCenter = GetAxisCenter(newSeatZone, edge)
-			});
+				items.Add(new SeatAssignmentItem
+				{
+					Player = null,
+					DesiredCenter = GetAxisCenter(newSeatZone, edge),
+					SeatLength = HudStripLength
+				});
+			}
 
 			return items;
 		}
@@ -808,6 +819,11 @@ namespace TableCore.Lobby
 		{
 			DisposeCustomizationHud(profile.PlayerId);
 			_completedCustomizations.Add(profile.PlayerId);
+			var seatEdge = profile.Seat?.Edge;
+			if (seatEdge.HasValue)
+			{
+				ReflowSeats(seatEdge.Value);
+			}
 			UpdateSeatIndicator(profile);
 			RefreshPlayerDisplay();
 			ResolveHudOverlaps();
@@ -817,6 +833,7 @@ namespace TableCore.Lobby
 		private void OnCustomizationCancelled(PlayerProfile profile)
 		{
 			var playerId = profile.PlayerId;
+			var priorEdge = profile.Seat?.Edge;
 			DisposeCustomizationHud(playerId);
 			RemoveSeatIndicator(playerId);
 
@@ -830,8 +847,18 @@ namespace TableCore.Lobby
 			ResolveHudOverlaps();
 			RefreshStartButtonState();
 
-			var seatEdge = removedProfile?.Seat?.Edge.ToString().ToLowerInvariant() ?? "table";
+			var seatEdgeValue = priorEdge ?? removedProfile?.Seat?.Edge;
+			var seatEdge = seatEdgeValue?.ToString().ToLowerInvariant() ?? "table";
 			UpdateStatusMessage($"Cancelled player slot near the {seatEdge} edge.");
+
+			if (seatEdgeValue.HasValue)
+			{
+				ReflowSeats(seatEdgeValue.Value);
+			}
+			else if (removedProfile?.Seat?.Edge is { } removedEdge)
+			{
+				ReflowSeats(removedEdge);
+			}
 		}
 
 		private void DisposeCustomizationHud(Guid playerId)
@@ -933,6 +960,24 @@ namespace TableCore.Lobby
 			};
 		}
 
+		private float GetSeatLengthForProfile(PlayerProfile profile)
+		{
+			if (profile.Seat == null)
+			{
+				return HudStripLength;
+			}
+
+			return _completedCustomizations.Contains(profile.PlayerId)
+				? GetIndicatorSeatLength()
+				: HudStripLength;
+		}
+
+		private float GetIndicatorSeatLength()
+		{
+			var indicatorWidth = _seatIndicatorTemplateSize.X;
+			return Mathf.Max(64f, indicatorWidth + SeatIndicatorGap);
+		}
+
 		private static AvatarOption[] CreateDefaultAvatarOptions()
 		{
 			return new[]
@@ -942,6 +987,44 @@ namespace TableCore.Lobby
 				new AvatarOption("Twilight", CreateAvatarTexture(Color.FromHtml("577590"), Color.FromHtml("8ECAE6"))),
 				new AvatarOption("Rose", CreateAvatarTexture(Color.FromHtml("F94144"), Color.FromHtml("FB8B24")))
 			};
+		}
+
+		private void ReflowSeats(TableEdge edge)
+		{
+			var seatItems = BuildSeatAssignmentItems(edge);
+			if (seatItems.Count == 0)
+			{
+				return;
+			}
+
+			var viewportRect = GetViewport().GetVisibleRect();
+			var desiredCenters = seatItems.Select(item => item.DesiredCenter).ToList();
+			var seatLengths = seatItems.Select(item => item.SeatLength).ToList();
+
+			if (!LobbySeatPlanner.TryArrangeSeatCenters(edge, viewportRect, seatLengths, desiredCenters, out var arrangedCenters))
+			{
+				return;
+			}
+
+			for (var index = 0; index < seatItems.Count; index++)
+			{
+				var item = seatItems[index];
+				if (item.Player is null)
+				{
+					continue;
+				}
+
+				var arrangedZone = LobbySeatPlanner.CreateSeatZoneFromAxisCenter(
+					edge,
+					viewportRect,
+					HudStripThickness,
+					item.SeatLength,
+					arrangedCenters[index]);
+
+				item.Player.Seat = arrangedZone;
+				UpdateSeatIndicator(item.Player);
+				UpdateCustomizationHud(item.Player);
+			}
 		}
 
 		private void ResolveHudOverlaps()
@@ -1085,6 +1168,7 @@ namespace TableCore.Lobby
 		{
 			public PlayerProfile? Player { get; init; }
 			public float DesiredCenter { get; init; }
+			public float SeatLength { get; init; }
 		}
 	}
 }
