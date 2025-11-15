@@ -47,14 +47,14 @@ namespace TableCore.Tests.Lobby
         }
 
         [Test]
-        public void TryArrangeSeatCenters_SpreadsSeatsEvenly_WhenTargetsOverlap()
+        public void TryArrangeSeatCenters_MovesNewSeatOnly_WhenTargetsOverlap()
         {
             var desired = new List<float> { 960f, 960f };
+            var lengths = new List<float> { 520f, 520f };
             var success = LobbySeatPlanner.TryArrangeSeatCenters(
                 TableEdge.Bottom,
                 Viewport,
-                520f,
-                0.4f,
+                lengths,
                 desired,
                 out var arranged);
 
@@ -62,35 +62,84 @@ namespace TableCore.Tests.Lobby
             {
                 Assert.That(success, Is.True);
                 Assert.That(arranged, Has.Count.EqualTo(2));
-                Assert.That(arranged[0], Is.EqualTo(700f).Within(0.5f));
-                Assert.That(arranged[1], Is.EqualTo(1220f).Within(0.5f));
+                Assert.That(arranged[0], Is.EqualTo(960f).Within(0.5f));
+                Assert.That(arranged[1], Is.EqualTo(1480f).Within(0.5f));
             });
         }
 
         [Test]
-        public void TryArrangeSeatCenters_Fails_WhenShiftLimitTooTight()
+        public void TryArrangeSeatCenters_PreservesSpacing_WhenSeatsDoNotOverlap()
         {
-            var desired = new List<float> { 960f, 960f };
+            var desired = new List<float> { 400f, 1500f };
+            var lengths = new List<float> { 520f, 520f };
             var success = LobbySeatPlanner.TryArrangeSeatCenters(
                 TableEdge.Bottom,
                 Viewport,
-                520f,
-                0.05f,
+                lengths,
                 desired,
-                out _);
+                out var arranged);
 
-            Assert.That(success, Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(success, Is.True);
+                Assert.That(arranged, Has.Count.EqualTo(2));
+                Assert.That(arranged[0], Is.EqualTo(400f).Within(0.5f));
+                Assert.That(arranged[1], Is.EqualTo(1500f).Within(0.5f));
+            });
+        }
+
+        [Test]
+        public void TryArrangeSeatCenters_MaintainsOrder_WhenCompactionRequired()
+        {
+            var desired = new List<float> { 960f, 960f };
+            var lengths = new List<float> { 520f, 520f };
+            var success = LobbySeatPlanner.TryArrangeSeatCenters(
+                TableEdge.Bottom,
+                Viewport,
+                lengths,
+                desired,
+                out var arranged);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(success, Is.True);
+                Assert.That(arranged[0], Is.EqualTo(960f).Within(0.5f));
+                Assert.That(arranged[1], Is.EqualTo(1480f).Within(0.5f));
+            });
+        }
+
+        [Test]
+        public void TryArrangeSeatCenters_AllowsMixedSeatLengths()
+        {
+            var desired = new List<float> { 300f, 900f, 1200f, 1600f };
+            var lengths = new List<float> { 520f, 260f, 260f, 520f };
+            var success = LobbySeatPlanner.TryArrangeSeatCenters(
+                TableEdge.Bottom,
+                Viewport,
+                lengths,
+                desired,
+                out var arranged);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(success, Is.True);
+                Assert.That(arranged, Has.Count.EqualTo(4));
+                Assert.That(arranged[0], Is.EqualTo(300f).Within(0.5f));
+                Assert.That(arranged[1], Is.EqualTo(900f).Within(0.5f));
+                Assert.That(arranged[2], Is.EqualTo(1200f).Within(0.5f));
+                Assert.That(arranged[3], Is.EqualTo(1600f).Within(0.5f));
+            });
         }
 
         [Test]
         public void TryArrangeSeatCenters_Fails_WhenInsufficientSpace()
         {
             var desired = new List<float> { 200f, 600f, 1000f, 1400f };
+            var lengths = new List<float> { 600f, 600f, 600f, 600f };
             var success = LobbySeatPlanner.TryArrangeSeatCenters(
                 TableEdge.Bottom,
                 Viewport,
-                600f,
-                0.35f,
+                lengths,
                 desired,
                 out _);
 
@@ -101,19 +150,19 @@ namespace TableCore.Tests.Lobby
         public void TryArrangeSeatCenters_SupportsVerticalEdges()
         {
             var desired = new List<float> { 100f, 800f };
+            var lengths = new List<float> { 400f, 400f };
             var success = LobbySeatPlanner.TryArrangeSeatCenters(
                 TableEdge.Left,
                 Viewport,
-                400f,
-                0.4f,
+                lengths,
                 desired,
                 out var arranged);
 
             Assert.Multiple(() =>
             {
                 Assert.That(success, Is.True);
-                Assert.That(arranged[0], Is.EqualTo(300f).Within(0.5f));
-                Assert.That(arranged[1], Is.EqualTo(700f).Within(0.5f));
+                Assert.That(arranged[0], Is.EqualTo(200f).Within(0.5f));
+                Assert.That(arranged[1], Is.EqualTo(800f).Within(0.5f));
             });
         }
 

@@ -199,8 +199,7 @@ namespace TableCore.Lobby
         public static bool TryArrangeSeatCenters(
             TableEdge edge,
             Rect2 viewportRect,
-            float stripLength,
-            float maxShiftFraction,
+            IReadOnlyList<float> seatLengths,
             IReadOnlyList<float> desiredCenters,
             out List<float> arrangedCenters)
         {
@@ -209,6 +208,12 @@ namespace TableCore.Lobby
             if (desiredCenters.Count == 0)
             {
                 return true;
+            }
+
+            if (seatLengths.Count != desiredCenters.Count)
+            {
+                arrangedCenters.Clear();
+                return false;
             }
 
             var axisStart = edge is TableEdge.Top or TableEdge.Bottom
@@ -225,20 +230,13 @@ namespace TableCore.Lobby
                 return false;
             }
 
-            var seatLength = stripLength;
-            var totalRequired = seatLength * desiredCenters.Count;
-
-            if (totalRequired > axisLength + 0.001f)
+            var totalRequired = 0f;
+            for (var index = 0; index < seatLengths.Count; index++)
             {
-                arrangedCenters.Clear();
-                return false;
+                totalRequired += Mathf.Max(1f, seatLengths[index]);
             }
 
-            var halfLength = seatLength / 2f;
-            var minCenter = axisStart + halfLength;
-            var maxCenter = axisEnd - halfLength;
-
-            if (minCenter > maxCenter)
+            if (totalRequired > axisLength + 0.001f)
             {
                 arrangedCenters.Clear();
                 return false;
@@ -248,8 +246,18 @@ namespace TableCore.Lobby
 
             for (var index = 0; index < desiredCenters.Count; index++)
             {
-                var clamped = Mathf.Clamp(desiredCenters[index], minCenter, maxCenter);
-                candidates.Add(new SeatCenterCandidate(index, clamped));
+                var length = Mathf.Max(1f, seatLengths[index]);
+                var half = length / 2f;
+                var minCenter = axisStart + half;
+                var maxCenter = axisEnd - half;
+                if (minCenter > maxCenter)
+                {
+                    arrangedCenters.Clear();
+                    return false;
+                }
+
+                var clampedCenter = Mathf.Clamp(desiredCenters[index], minCenter, maxCenter);
+                candidates.Add(new SeatCenterCandidate(index, clampedCenter, length, half, minCenter, maxCenter));
             }
 
             candidates.Sort((a, b) =>
@@ -258,36 +266,47 @@ namespace TableCore.Lobby
                 return comparison != 0 ? comparison : a.OriginalIndex.CompareTo(b.OriginalIndex);
             });
 
-            double sum = 0;
-            for (var i = 0; i < candidates.Count; i++)
+            var count = candidates.Count;
+            var centers = new float[count];
+            var minCenters = new float[count];
+            var maxCenters = new float[count];
+            var halfLengths = new float[count];
+
+            for (var i = 0; i < count; i++)
             {
-                sum += candidates[i].DesiredCenter - (i * seatLength);
+                minCenters[i] = candidates[i].MinCenter;
+                maxCenters[i] = candidates[i].MaxCenter;
+                halfLengths[i] = candidates[i].HalfLength;
+                centers[i] = Mathf.Clamp(candidates[i].DesiredCenter, minCenters[i], maxCenters[i]);
             }
 
-            var baseCenter = (float)(sum / candidates.Count);
-            var minBase = minCenter;
-            var maxBase = maxCenter - (seatLength * (candidates.Count - 1));
+            AdjustCentersForward(centers, minCenters, maxCenters, halfLengths);
+            AdjustCentersBackward(centers, minCenters, maxCenters, halfLengths);
+            AdjustCentersForward(centers, minCenters, maxCenters, halfLengths);
+            AdjustCentersBackward(centers, minCenters, maxCenters, halfLengths);
 
-            if (maxBase < minBase)
+            if (centers[^1] > maxCenters[^1])
             {
-                arrangedCenters.Clear();
-                return false;
+                var shift = centers[^1] - maxCenters[^1];
+                for (var i = 0; i < centers.Length; i++)
+                {
+                    centers[i] -= shift;
+                }
             }
 
-            baseCenter = Mathf.Clamp(baseCenter, minBase, maxBase);
-
-            var centersSorted = new float[candidates.Count];
-            for (var i = 0; i < candidates.Count; i++)
+            if (centers[0] < minCenters[0])
             {
-                centersSorted[i] = baseCenter + (i * seatLength);
+                var shift = minCenters[0] - centers[0];
+                for (var i = 0; i < centers.Length; i++)
+                {
+                    centers[i] += shift;
+                }
             }
 
-            var maxShift = axisLength * Mathf.Clamp(maxShiftFraction, 0f, 1f);
-
-            for (var i = 0; i < candidates.Count; i++)
+            for (var i = 1; i < centers.Length; i++)
             {
-                var shift = Mathf.Abs(centersSorted[i] - candidates[i].DesiredCenter);
-                if (shift > maxShift + 0.001f)
+                var required = halfLengths[i - 1] + halfLengths[i];
+                if (centers[i] < centers[i - 1] + required - 0.001f)
                 {
                     arrangedCenters.Clear();
                     return false;
@@ -295,10 +314,9 @@ namespace TableCore.Lobby
             }
 
             var centersByOriginalOrder = new float[candidates.Count];
-
             for (var i = 0; i < candidates.Count; i++)
             {
-                centersByOriginalOrder[candidates[i].OriginalIndex] = centersSorted[i];
+                centersByOriginalOrder[candidates[i].OriginalIndex] = centers[i];
             }
 
             arrangedCenters = new List<float>(centersByOriginalOrder);
@@ -335,16 +353,64 @@ namespace TableCore.Lobby
             return CreateSeatZone(edge, viewportRect, stripThickness, stripLength, anchor);
         }
 
+        private static void AdjustCentersForward(
+            float[] centers,
+            float[] minCenters,
+            float[] maxCenters,
+            float[] halfLengths)
+        {
+            centers[0] = Mathf.Clamp(centers[0], minCenters[0], maxCenters[0]);
+
+            for (var i = 1; i < centers.Length; i++)
+            {
+                var minPosition = centers[i - 1] + halfLengths[i - 1] + halfLengths[i];
+                if (centers[i] < minPosition)
+                {
+                    centers[i] = minPosition;
+                }
+
+                centers[i] = Mathf.Clamp(centers[i], minCenters[i], maxCenters[i]);
+            }
+        }
+
+        private static void AdjustCentersBackward(
+            float[] centers,
+            float[] minCenters,
+            float[] maxCenters,
+            float[] halfLengths)
+        {
+            centers[^1] = Mathf.Clamp(centers[^1], minCenters[^1], maxCenters[^1]);
+
+            for (var i = centers.Length - 2; i >= 0; i--)
+            {
+                var maxPosition = centers[i + 1] - (halfLengths[i + 1] + halfLengths[i]);
+                if (centers[i] > maxPosition)
+                {
+                    centers[i] = maxPosition;
+                }
+
+                centers[i] = Mathf.Clamp(centers[i], minCenters[i], maxCenters[i]);
+            }
+        }
+
         private readonly struct SeatCenterCandidate
         {
-            public SeatCenterCandidate(int originalIndex, float desiredCenter)
+            public SeatCenterCandidate(int originalIndex, float desiredCenter, float length, float halfLength, float minCenter, float maxCenter)
             {
                 OriginalIndex = originalIndex;
                 DesiredCenter = desiredCenter;
+                Length = length;
+                HalfLength = halfLength;
+                MinCenter = minCenter;
+                MaxCenter = maxCenter;
             }
 
             public int OriginalIndex { get; }
             public float DesiredCenter { get; }
+            public float Length { get; }
+            public float HalfLength { get; }
+            public float MinCenter { get; }
+            public float MaxCenter { get; }
         }
     }
 }
