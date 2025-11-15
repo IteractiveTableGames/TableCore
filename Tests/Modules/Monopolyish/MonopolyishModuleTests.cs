@@ -7,6 +7,7 @@ using NUnit.Framework;
 using TableCore.Core;
 using TableCore.Core.Board;
 using TableCore.Core.Modules;
+using TableCore.Core.UI;
 using TableCore.Modules.Monopolyish;
 
 namespace TableCore.Tests.Modules.Monopolyish
@@ -82,6 +83,8 @@ namespace TableCore.Tests.Modules.Monopolyish
             public void UpdateFunds(Guid playerId, int newAmount) { }
             public void UpdateHand(Guid playerId, IReadOnlyList<CardData> cards) { }
             public void SetPrompt(Guid playerId, string message) { }
+            public void ConfigureHudPlacement(HudPlacementOptions options) { }
+            public void SetSeatRegionResolver(Func<SeatZone, Rect2>? resolver) { }
         }
 
         private sealed class StubPlayerHud : IPlayerHUD

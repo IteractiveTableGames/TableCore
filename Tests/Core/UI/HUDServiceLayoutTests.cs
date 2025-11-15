@@ -16,18 +16,43 @@ namespace TableCore.Tests.Core.UI
             var seat = new SeatZone
             {
                 ScreenRegion = SeatRegion,
-                RotationDegrees = 180f
+                RotationDegrees = 180f,
+                Edge = TableEdge.Bottom
             };
 
             var layout = HUDService.ComputeLayout(seat);
 
             Assert.Multiple(() =>
             {
-                Assert.That(layout.WrapperPosition, Is.EqualTo(SeatRegion.Position));
-                Assert.That(layout.WrapperSize, Is.EqualTo(SeatRegion.Size));
-                Assert.That(layout.RootPosition, Is.EqualTo(SeatRegion.Size / 2f));
-                Assert.That(layout.RootPivot, Is.EqualTo(SeatRegion.Size / 2f));
+                Assert.That(layout.WrapperPosition, Is.EqualTo(new Vector2(128, 320)));
+                Assert.That(layout.WrapperSize, Is.EqualTo(new Vector2(320, 104)));
+                Assert.That(layout.RootPosition, Is.EqualTo(new Vector2(160, 52)));
+                Assert.That(layout.RootPivot, Is.EqualTo(new Vector2(160, 52)));
                 Assert.That(layout.RotationDegrees, Is.EqualTo(180f));
+            });
+        }
+
+        [Test]
+        public void ApplyPlacementOptions_PushesTopEdgeAwayFromBoard()
+        {
+            var seat = new SeatZone
+            {
+                ScreenRegion = SeatRegion,
+                Edge = TableEdge.Top
+            };
+
+            var options = new HudPlacementOptions
+            {
+                BoardClearance = 32f,
+                EdgePadding = 8f
+            };
+
+            var rect = HUDService.ApplyPlacementOptions(seat, options);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(rect.Position.Y, Is.EqualTo(SeatRegion.Position.Y + 8f));
+                Assert.That(rect.Size.Y, Is.EqualTo(SeatRegion.Size.Y - 40f));
             });
         }
 
