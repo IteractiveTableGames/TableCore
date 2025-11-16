@@ -2,7 +2,10 @@
   "moduleId": "com.tablecore.monopolyish",
   "displayName": "Monopoly-ish",
   "summary": "Sample property-trading experience showcasing TableCore services.",
+  "shortDescription": "Welcome to Monopoly-ish, a property-trading demo built for TableCore.",
+  "rulesSummary": "Roll both dice on your turn, move clockwise, pay rent when landing on owned properties, and collect $200 salary for each lap. Use End Turn to pass play to the next seated player.",
   "minPlayers": 2,
   "maxPlayers": 6,
+  "icon": "icon.svg",
   "entryScene": "MonopolyishModule.tscn"
 }

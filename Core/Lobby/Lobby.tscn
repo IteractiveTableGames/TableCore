@@ -123,6 +123,7 @@ text = "Available Modules"
 layout_mode = 2
 size_flags_vertical = 3
 select_mode = 0
+fixed_icon_size = Vector2(48, 48)
 
 [node name="ModuleDetails" type="VBoxContainer" parent="ModulePanel/Content"]
 layout_mode = 2
@@ -141,15 +142,34 @@ layout_mode = 2
 text = "No module selected"
 theme_override_font_sizes/font_size = 18
 
+[node name="ShortDescription" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "Select a module to see its overview."
+autowrap_mode = 2
+
 [node name="Players" type="Label" parent="ModulePanel/Content/ModuleDetails"]
 layout_mode = 2
 text = "Players: -"
+
+[node name="RulesHeading" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+text = "Rules Overview"
+theme_override_font_sizes/font_size = 16
+visible = false
 
 [node name="Summary" type="Label" parent="ModulePanel/Content/ModuleDetails"]
 layout_mode = 2
 custom_minimum_size = Vector2(360, 0)
 text = "Drop a module into the Modules/ directory to see its information here."
 autowrap_mode = 2
+
+[node name="RulesSummary" type="Label" parent="ModulePanel/Content/ModuleDetails"]
+layout_mode = 2
+custom_minimum_size = Vector2(360, 0)
+text = "Rules summary will appear here."
+autowrap_mode = 2
+visible = false
 
 [node name="StartButton" type="Button" parent="ModulePanel/Content"]
 layout_mode = 2

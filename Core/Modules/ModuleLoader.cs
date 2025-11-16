@@ -70,6 +70,8 @@ namespace TableCore.Core.Modules
                         MinPlayers = Math.Max(1, manifest.MinPlayers),
                         MaxPlayers = Math.Max(manifest.MinPlayers, manifest.MaxPlayers),
                         ModulePath = moduleDirectory,
+                        ShortDescription = manifest.ShortDescription?.Trim() ?? string.Empty,
+                        RulesSummary = manifest.RulesSummary?.Trim() ?? string.Empty,
                         IconPath = NormalizeRelativePath(manifest.Icon),
                         EntryScenePath = NormalizeRelativePath(manifest.EntryScene)
                     };
@@ -118,6 +120,8 @@ namespace TableCore.Core.Modules
             public string? ModuleId { get; set; }
             public string? DisplayName { get; set; }
             public string? Summary { get; set; }
+            public string? ShortDescription { get; set; }
+            public string? RulesSummary { get; set; }
             public int MinPlayers { get; set; } = 1;
             public int MaxPlayers { get; set; } = 4;
             public string? Icon { get; set; }

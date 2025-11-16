@@ -47,6 +47,8 @@ namespace TableCore.Tests.Core
                   "moduleId": "sample.module",
                   "displayName": "Sample Module",
                   "summary": "An example module used for tests.",
+                  "shortDescription": "Short summary for cards.",
+                  "rulesSummary": "Roll two dice and move clockwise.",
                   "minPlayers": 2,
                   "maxPlayers": 4,
                   "icon": "icon.png",
@@ -72,6 +74,8 @@ namespace TableCore.Tests.Core
                 Assert.That(descriptor.MinPlayers, Is.EqualTo(2));
                 Assert.That(descriptor.MaxPlayers, Is.EqualTo(4));
                 Assert.That(descriptor.Summary, Does.Contain("example"));
+                Assert.That(descriptor.ShortDescription, Does.Contain("Short summary"));
+                Assert.That(descriptor.RulesSummary, Does.Contain("Roll two dice"));
                 Assert.That(descriptor.ModulePath, Is.EqualTo(moduleDir));
                 Assert.That(descriptor.IconPath, Is.EqualTo("icon.png"));
                 Assert.That(descriptor.EntryScenePath, Is.EqualTo("SampleModule.tscn"));
