@@ -160,6 +160,11 @@ namespace TableCore.Core.Runtime
             }
         }
 
+        public void RequestReturnToLobby()
+        {
+            ReturnToLobby();
+        }
+
         private void ReturnToLobby()
         {
             if (!string.IsNullOrWhiteSpace(LobbyScenePath))

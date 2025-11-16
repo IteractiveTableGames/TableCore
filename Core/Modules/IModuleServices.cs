@@ -19,5 +19,6 @@ namespace TableCore.Core.Modules
         IBoardManager GetBoardManager();
         SessionState GetSessionState();
         void ReturnToLobby();
+        void RequestModuleExit();
     }
 }

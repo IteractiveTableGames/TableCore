@@ -53,5 +53,10 @@ namespace TableCore.Core.Modules
         public SessionState GetSessionState() => _session;
 
         public void ReturnToLobby() => _returnToLobby();
+
+        public void RequestModuleExit()
+        {
+            ReturnToLobby();
+        }
     }
 }

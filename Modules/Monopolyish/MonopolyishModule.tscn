@@ -177,3 +177,15 @@ offset_bottom = 64.0
 text = "Monopoly-ish Sample Module"
 horizontal_alignment = 1
 metadata/_edit_use_anchors_ = true
+
+[node name="ReturnButton" type="Button" parent="Overlay/OverlayRoot"]
+layout_mode = 0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -240.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 72.0
+text = "Return to Lobby"
+mouse_filter = 1
+metadata/_edit_use_anchors_ = true

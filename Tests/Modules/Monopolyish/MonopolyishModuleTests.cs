@@ -55,9 +55,8 @@ namespace TableCore.Tests.Modules.Monopolyish
             public AnimationService GetAnimationService() => new AnimationService(null);
             public IBoardManager GetBoardManager() => _boardManager;
             public SessionState GetSessionState() => new();
-            public void ReturnToLobby()
-            {
-            }
+            public void ReturnToLobby() { }
+            public void RequestModuleExit() { }
         }
 
         private sealed class StubBoardManager : IBoardManager

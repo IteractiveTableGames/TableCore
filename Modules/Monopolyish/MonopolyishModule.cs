@@ -36,6 +36,7 @@ namespace TableCore.Modules.Monopolyish
         private readonly Dictionary<int, MonopolyTileVisual> _tileVisuals = new();
         private readonly Dictionary<Guid, Color> _playerColors = new();
         private PackedScene? _tileTemplate;
+        private Button? _returnButton;
         private float _maxTileX;
         private float _minTileX;
         private float _maxTileY;
@@ -89,6 +90,7 @@ namespace TableCore.Modules.Monopolyish
             {
                 _hudController.RollDiceRequested -= HandleRollDiceRequested;
                 _hudController.EndTurnRequested -= HandleEndTurnRequested;
+                _hudController.ExitRequested -= HandleExitRequested;
                 _hudController.Dispose();
                 _hudController = null;
             }
@@ -115,6 +117,11 @@ namespace TableCore.Modules.Monopolyish
             _hudService = null;
             _session = null;
             _services = null;
+            if (_returnButton != null)
+            {
+                _returnButton.Pressed -= HandleReturnButtonPressed;
+                _returnButton = null;
+            }
         }
 
         private void EnsureNodeReferences()
@@ -141,6 +148,15 @@ namespace TableCore.Modules.Monopolyish
             {
                 _tokensRoot = new Node2D { Name = "Tokens" };
                 _board.AddChild(_tokensRoot);
+            }
+
+            if (_returnButton == null || !_returnButton.IsInsideTree())
+            {
+                _returnButton = GetNodeOrNull<Button>("Overlay/OverlayRoot/ReturnButton");
+                if (_returnButton != null)
+                {
+                    _returnButton.Pressed += HandleReturnButtonPressed;
+                }
             }
         }
 
@@ -245,6 +261,7 @@ namespace TableCore.Modules.Monopolyish
             _hudController = new MonopolyHudController(_session, _hudService, _bank, _cardService, _turnManager, diceService);
             _hudController.RollDiceRequested += HandleRollDiceRequested;
             _hudController.EndTurnRequested += HandleEndTurnRequested;
+            _hudController.ExitRequested += HandleExitRequested;
             _hudController.Initialize();
         }
 
@@ -273,6 +290,16 @@ namespace TableCore.Modules.Monopolyish
         private void HandleEndTurnRequested(Guid playerId)
         {
             _turnManager?.AdvanceTurn();
+        }
+
+        private void HandleExitRequested(Guid playerId)
+        {
+            _services?.RequestModuleExit();
+        }
+
+        private void HandleReturnButtonPressed()
+        {
+            _services?.RequestModuleExit();
         }
 
         private async Task MoveTokenAsync(Guid playerId, int stepCount)
