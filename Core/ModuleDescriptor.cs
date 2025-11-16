@@ -13,6 +13,8 @@ namespace TableCore.Core
         public string ModulePath { get; set; } = string.Empty;
         public string? IconPath { get; set; }
         public string? EntryScenePath { get; set; }
+        public string ShortDescription { get; set; } = string.Empty;
+        public string RulesSummary { get; set; } = string.Empty;
 
         public Dictionary<string, object> Capabilities { get; } = new(StringComparer.OrdinalIgnoreCase);
 
@@ -31,6 +33,8 @@ namespace TableCore.Core
                 ModuleId = ModuleId,
                 DisplayName = DisplayName,
                 Summary = Summary,
+                ShortDescription = ShortDescription,
+                RulesSummary = RulesSummary,
                 MinPlayers = MinPlayers,
                 MaxPlayers = MaxPlayers,
                 ModulePath = ModulePath,

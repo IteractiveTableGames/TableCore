@@ -14,6 +14,8 @@ namespace TableCore.Tests.Core
                 ModuleId = "sample.module",
                 DisplayName = "Sample Module",
                 Summary = "Example summary",
+                ShortDescription = "Short blurb",
+                RulesSummary = "Roll, move, resolve space.",
                 MinPlayers = 2,
                 MaxPlayers = 6,
                 ModulePath = "C:/Modules/Sample",
@@ -28,6 +30,8 @@ namespace TableCore.Tests.Core
                 Assert.That(descriptor.ModuleId, Is.EqualTo("sample.module"));
                 Assert.That(descriptor.DisplayName, Is.EqualTo("Sample Module"));
                 Assert.That(descriptor.Summary, Is.EqualTo("Example summary"));
+                Assert.That(descriptor.ShortDescription, Is.EqualTo("Short blurb"));
+                Assert.That(descriptor.RulesSummary, Is.EqualTo("Roll, move, resolve space."));
                 Assert.That(descriptor.MinPlayers, Is.EqualTo(2));
                 Assert.That(descriptor.MaxPlayers, Is.EqualTo(6));
                 Assert.That(descriptor.ModulePath, Contains.Substring("Sample"));
@@ -47,6 +51,8 @@ namespace TableCore.Tests.Core
                 ModuleId = "mod.runtime.test",
                 DisplayName = "Runtime Test",
                 Summary = "Testing module for runtime handoff",
+                ShortDescription = "Short test",
+                RulesSummary = "Rules go here.",
                 MinPlayers = 2,
                 MaxPlayers = 5,
                 ModulePath = "C:/Games/RuntimeTest",
@@ -63,6 +69,8 @@ namespace TableCore.Tests.Core
             {
                 Assert.That(clone, Is.Not.SameAs(descriptor));
                 Assert.That(clone.ModuleId, Is.EqualTo(descriptor.ModuleId));
+                Assert.That(clone.ShortDescription, Is.EqualTo(descriptor.ShortDescription));
+                Assert.That(clone.RulesSummary, Is.EqualTo(descriptor.RulesSummary));
                 Assert.That(clone.Capabilities, Is.Not.SameAs(descriptor.Capabilities));
                 Assert.That(clone.Capabilities["dice"], Is.EqualTo(true));
                 Assert.That(clone.Capabilities["currency"], Is.EqualTo("enabled"));

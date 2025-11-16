@@ -69,12 +69,16 @@ namespace TableCore.Lobby
 		private ItemList? _moduleList;
 		private TextureRect? _moduleIcon;
 		private Label? _moduleNameLabel;
+		private Label? _moduleShortDescriptionLabel;
 		private Label? _modulePlayersLabel;
+		private Label? _moduleRulesHeadingLabel;
 		private Label? _moduleSummaryLabel;
+		private Label? _moduleRulesSummaryLabel;
 		private Control? _moduleEmptyState;
 		private Button? _startGameButton;
 		private readonly ModuleLoader _moduleLoader = new();
 		private Vector2 _seatIndicatorTemplateSize = new Vector2(220f, 72f);
+		private readonly Dictionary<string, Texture2D?> _moduleIconCache = new(StringComparer.OrdinalIgnoreCase);
 
 		public SessionState Session => _sessionState;
 
@@ -99,8 +103,11 @@ namespace TableCore.Lobby
 			_moduleList = GetNodeOrNull<ItemList>("ModulePanel/Content/ModuleListContainer/ModuleList");
 			_moduleIcon = GetNodeOrNull<TextureRect>("ModulePanel/Content/ModuleDetails/Icon");
 			_moduleNameLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Name");
+			_moduleShortDescriptionLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/ShortDescription");
 			_modulePlayersLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Players");
+			_moduleRulesHeadingLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/RulesHeading");
 			_moduleSummaryLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/Summary");
+			_moduleRulesSummaryLabel = GetNodeOrNull<Label>("ModulePanel/Content/ModuleDetails/RulesSummary");
 			_moduleEmptyState = GetNodeOrNull<Control>("ModulePanel/Content/EmptyState");
 			_startGameButton = GetNodeOrNull<Button>("ModulePanel/Content/StartButton");
 			_moduleSelectionModel = new ModuleSelectionModel(_sessionState);
@@ -400,6 +407,7 @@ namespace TableCore.Lobby
 		private void LoadModuleCatalog()
 		{
 			var modulesRoot = ResolveModulesRoot();
+			_moduleIconCache.Clear();
 			_moduleSelectionModel.SetModules(_moduleLoader.LoadModules(modulesRoot));
 			PopulateModuleList();
 		}
@@ -514,6 +522,11 @@ namespace TableCore.Lobby
 					? $"{descriptor.MinPlayers} players"
 					: $"{descriptor.MinPlayers}–{descriptor.MaxPlayers} players";
 				_moduleList.AddItem($"{descriptor.DisplayName} ({playerLabel})");
+				var icon = GetModuleIcon(descriptor);
+				if (icon != null)
+				{
+					_moduleList.SetItemIcon(index, icon);
+				}
 			}
 
 			var selected = _moduleSelectionModel.SelectedModule;
@@ -559,11 +572,36 @@ namespace TableCore.Lobby
 				_moduleNameLabel.Text = descriptor?.DisplayName ?? "No module selected";
 			}
 
+			if (_moduleShortDescriptionLabel != null)
+			{
+				_moduleShortDescriptionLabel.Text = string.IsNullOrWhiteSpace(descriptor?.ShortDescription)
+					? "Drop modules into the Modules/ directory to enable game selection."
+					: descriptor.ShortDescription;
+			}
+
 			if (_modulePlayersLabel != null)
 			{
 				_modulePlayersLabel.Text = descriptor is null
 					? "Players: –"
 					: $"Players: {descriptor.MinPlayers} – {descriptor.MaxPlayers}";
+			}
+
+			if (_moduleRulesHeadingLabel != null)
+			{
+				_moduleRulesHeadingLabel.Visible = !string.IsNullOrWhiteSpace(descriptor?.RulesSummary);
+			}
+
+			if (_moduleRulesSummaryLabel != null)
+			{
+				if (string.IsNullOrWhiteSpace(descriptor?.RulesSummary))
+				{
+					_moduleRulesSummaryLabel.Visible = false;
+				}
+				else
+				{
+					_moduleRulesSummaryLabel.Visible = true;
+					_moduleRulesSummaryLabel.Text = descriptor!.RulesSummary;
+				}
 			}
 
 			if (_moduleSummaryLabel != null)
@@ -574,7 +612,7 @@ namespace TableCore.Lobby
 
 			if (_moduleIcon != null)
 			{
-				_moduleIcon.Texture = LoadModuleIcon(descriptor);
+				_moduleIcon.Texture = descriptor != null ? GetModuleIcon(descriptor) : null;
 				_moduleIcon.Visible = _moduleIcon.Texture != null;
 			}
 
@@ -588,6 +626,23 @@ namespace TableCore.Lobby
 			}
 
 			RefreshStartButtonState();
+		}
+
+		private Texture2D? GetModuleIcon(ModuleDescriptor descriptor)
+		{
+			if (string.IsNullOrWhiteSpace(descriptor.ModuleId))
+			{
+				return LoadModuleIcon(descriptor);
+			}
+
+			if (_moduleIconCache.TryGetValue(descriptor.ModuleId, out var cached))
+			{
+				return cached;
+			}
+
+			var texture = LoadModuleIcon(descriptor);
+			_moduleIconCache[descriptor.ModuleId] = texture;
+			return texture;
 		}
 
 		private Texture2D? LoadModuleIcon(ModuleDescriptor? descriptor)
