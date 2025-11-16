@@ -33,6 +33,11 @@ namespace TableCore.Core.Modules.Monopolyish
         public event Action<Guid>? EndTurnRequested;
 
         /// <summary>
+        /// Raised when a player requests to exit back to the lobby.
+        /// </summary>
+        public event Action<Guid>? ExitRequested;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="MonopolyHudController"/> class.
         /// </summary>
         public MonopolyHudController(
@@ -71,7 +76,12 @@ namespace TableCore.Core.Modules.Monopolyish
                 }
 
                 var playerHud = _hudService.CreatePlayerHUD(player);
-                var context = _viewFactory.Create(player, playerHud, () => HandleRollDicePressed(player.PlayerId), () => HandleEndTurnPressed(player.PlayerId));
+                var context = _viewFactory.Create(
+                    player,
+                    playerHud,
+                    () => HandleRollDicePressed(player.PlayerId),
+                    () => HandleEndTurnPressed(player.PlayerId),
+                    () => HandleExitPressed(player.PlayerId));
                 _contexts[player.PlayerId] = context;
 
                 var startingFunds = _currencyBank.GetBalance(player.PlayerId);
@@ -108,6 +118,11 @@ namespace TableCore.Core.Modules.Monopolyish
             }
 
             _contexts.Clear();
+        }
+
+        private void HandleExitPressed(Guid playerId)
+        {
+            ExitRequested?.Invoke(playerId);
         }
 
         private void HandleBalanceChanged(Guid playerId, int newAmount)
@@ -236,7 +251,7 @@ namespace TableCore.Core.Modules.Monopolyish
 
         private sealed class GodotMonopolyHudViewFactory : IMonopolyHudViewFactory
         {
-            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler)
+            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler, Action exitHandler)
             {
                 var content = new VBoxContainer
                 {
@@ -265,9 +280,14 @@ namespace TableCore.Core.Modules.Monopolyish
                 actionRow.AddChild(endButton);
                 content.AddChild(actionRow);
 
+                var exitButton = CreateActionButton("Return to Lobby");
+                exitButton.MouseFilter = Control.MouseFilterEnum.Stop;
+                exitButton.Pressed += exitHandler;
+                content.AddChild(exitButton);
+
                 hud.AddControl(content);
 
-                return new GodotMonopolyHudViewContext(player, hud, rollButton, rollHandler, endButton, endHandler);
+                return new GodotMonopolyHudViewContext(player, hud, rollButton, rollHandler, endButton, endHandler, exitButton, exitHandler);
             }
 
             private static Button CreateActionButton(string text)
@@ -287,6 +307,7 @@ namespace TableCore.Core.Modules.Monopolyish
         {
             private readonly Action _rollHandler;
             private readonly Action _endHandler;
+            private readonly Action _exitHandler;
 
             public GodotMonopolyHudViewContext(
                 PlayerProfile player,
@@ -294,15 +315,19 @@ namespace TableCore.Core.Modules.Monopolyish
                 Button rollButton,
                 Action rollHandler,
                 Button endButton,
-                Action endHandler)
+                Action endHandler,
+                Button exitButton,
+                Action exitHandler)
             {
                 PlayerId = player.PlayerId;
                 DisplayName = string.IsNullOrWhiteSpace(player.DisplayName) ? "Player" : player.DisplayName;
                 Hud = hud;
                 RollButton = rollButton;
                 EndButton = endButton;
+                ExitButton = exitButton;
                 _rollHandler = rollHandler;
                 _endHandler = endHandler;
+                _exitHandler = exitHandler;
             }
 
             public Guid PlayerId { get; }
@@ -310,28 +335,32 @@ namespace TableCore.Core.Modules.Monopolyish
             public IPlayerHUD Hud { get; }
             public Button RollButton { get; }
             public Button EndButton { get; }
+            public Button ExitButton { get; }
 
             public void SetInteractionEnabled(bool enabled)
             {
                 RollButton.Disabled = !enabled;
                 EndButton.Disabled = !enabled;
+                ExitButton.Disabled = !enabled;
             }
 
             public void InvokeRoll() => RollButton.EmitSignal(BaseButton.SignalName.Pressed);
 
             public void InvokeEndTurn() => EndButton.EmitSignal(BaseButton.SignalName.Pressed);
+            public void InvokeExit() => ExitButton.EmitSignal(BaseButton.SignalName.Pressed);
 
             public void Dispose()
             {
                 RollButton.Pressed -= _rollHandler;
                 EndButton.Pressed -= _endHandler;
+                ExitButton.Pressed -= _exitHandler;
             }
         }
     }
 
     public interface IMonopolyHudViewFactory
     {
-        IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler);
+        IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler, Action exitHandler);
     }
 
     public interface IMonopolyHudViewContext : IDisposable
@@ -341,5 +370,6 @@ namespace TableCore.Core.Modules.Monopolyish
         void SetInteractionEnabled(bool enabled);
         void InvokeRoll();
         void InvokeEndTurn();
+        void InvokeExit();
     }
 }

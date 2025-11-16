@@ -55,6 +55,19 @@ namespace TableCore.Tests.Modules.Monopolyish
         }
 
         [Test]
+        public void ExitRequested_RaisedWhenExitButtonPressed()
+        {
+            var (controller, _, _, _, _, playerOne, _, viewFactory) = BuildControllerWithPlayers();
+            controller.Initialize();
+            Guid? observedPlayer = null;
+            controller.ExitRequested += id => observedPlayer = id;
+
+            viewFactory.Contexts[playerOne.PlayerId].InvokeExit();
+
+            Assert.That(observedPlayer, Is.EqualTo(playerOne.PlayerId));
+        }
+
+        [Test]
         public void BalanceChanged_UpdatesFundsLabel()
         {
             var (controller, hudService, currencyBank, _, _, playerOne, playerTwo, viewFactory) = BuildControllerWithPlayers();
@@ -265,9 +278,9 @@ namespace TableCore.Tests.Modules.Monopolyish
         {
             public Dictionary<Guid, TestHudContext> Contexts { get; } = new();
 
-            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler)
+            public IMonopolyHudViewContext Create(PlayerProfile player, IPlayerHUD hud, Action rollHandler, Action endHandler, Action exitHandler)
             {
-                var context = new TestHudContext(player, rollHandler, endHandler);
+                var context = new TestHudContext(player, rollHandler, endHandler, exitHandler);
                 Contexts[player.PlayerId] = context;
                 return context;
             }
@@ -277,13 +290,15 @@ namespace TableCore.Tests.Modules.Monopolyish
         {
             private readonly Action _rollHandler;
             private readonly Action _endHandler;
+            private readonly Action _exitHandler;
 
-            public TestHudContext(PlayerProfile player, Action rollHandler, Action endHandler)
+            public TestHudContext(PlayerProfile player, Action rollHandler, Action endHandler, Action exitHandler)
             {
                 PlayerId = player.PlayerId;
                 DisplayName = player.DisplayName ?? "Player";
                 _rollHandler = rollHandler;
                 _endHandler = endHandler;
+                _exitHandler = exitHandler;
             }
 
             public Guid PlayerId { get; }
@@ -303,6 +318,11 @@ namespace TableCore.Tests.Modules.Monopolyish
             public void InvokeEndTurn()
             {
                 _endHandler();
+            }
+
+            public void InvokeExit()
+            {
+                _exitHandler();
             }
 
             public void Dispose()
