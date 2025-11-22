@@ -43,6 +43,7 @@ namespace TableCore.Lobby
         private bool _isClosing;
         private bool _placeholderEnabled;
         private bool _autoClearOnType;
+        private bool _hasPlayedIntroAnimation;
 
         public event Action<PlayerProfile>? ProfileChanged;
         public event Action<PlayerProfile>? CustomizationCompleted;
@@ -154,6 +155,7 @@ namespace TableCore.Lobby
             }
 
             ApplySeatGeometry();
+            TryPlayAppearAnimation();
         }
 
         public void SetWaitMode(bool waiting)
@@ -482,6 +484,49 @@ namespace TableCore.Lobby
         public bool ContainsGlobalPoint(Vector2 point)
         {
             return GetGlobalRect().HasPoint(point);
+        }
+
+        private void TryPlayAppearAnimation()
+        {
+            if (_hasPlayedIntroAnimation || !IsInsideTree())
+            {
+                return;
+            }
+
+            _hasPlayedIntroAnimation = true;
+            PlayAppearAnimation();
+        }
+
+        private void PlayAppearAnimation()
+        {
+            var targetScale = Scale;
+            if (targetScale == Vector2.Zero)
+            {
+                targetScale = Vector2.One;
+            }
+
+            var targetModulate = Modulate;
+            var startScale = targetScale * 1.1f;
+            var startModulate = targetModulate;
+            startModulate.A = targetModulate.A * 0.35f;
+
+            Scale = startScale;
+            Modulate = startModulate;
+
+            var tween = CreateTween();
+            if (tween is null)
+            {
+                Scale = targetScale;
+                Modulate = targetModulate;
+                return;
+            }
+
+            tween.TweenProperty(this, "scale", targetScale, 0.28f)
+                .SetTrans(Tween.TransitionType.Quad)
+                .SetEase(Tween.EaseType.Out);
+            tween.TweenProperty(this, "modulate", targetModulate, 0.24f)
+                .SetTrans(Tween.TransitionType.Sine)
+                .SetEase(Tween.EaseType.Out);
         }
 
         private void ConfigurePlaceholderBehavior()
